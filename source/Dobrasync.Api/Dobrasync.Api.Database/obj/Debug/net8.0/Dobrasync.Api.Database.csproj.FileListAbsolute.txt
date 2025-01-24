@@ -1,0 +1,15 @@
+/home/skierner/Repos/OminousLama/dobrasync/dobrasync/source/Dobrasync.Api/Dobrasync.Api.Database/bin/Debug/net8.0/Dobrasync.Api.Database.deps.json
+/home/skierner/Repos/OminousLama/dobrasync/dobrasync/source/Dobrasync.Api/Dobrasync.Api.Database/bin/Debug/net8.0/Dobrasync.Api.Database.dll
+/home/skierner/Repos/OminousLama/dobrasync/dobrasync/source/Dobrasync.Api/Dobrasync.Api.Database/bin/Debug/net8.0/Dobrasync.Api.Database.pdb
+/home/skierner/Repos/OminousLama/dobrasync/dobrasync/source/Dobrasync.Api/Dobrasync.Api.Database/bin/Debug/net8.0/Dobrasync.Api.Shared.dll
+/home/skierner/Repos/OminousLama/dobrasync/dobrasync/source/Dobrasync.Api/Dobrasync.Api.Database/bin/Debug/net8.0/Dobrasync.Api.Shared.pdb
+/home/skierner/Repos/OminousLama/dobrasync/dobrasync/source/Dobrasync.Api/Dobrasync.Api.Database/obj/Debug/net8.0/Dobrasync.Api.Database.csproj.AssemblyReference.cache
+/home/skierner/Repos/OminousLama/dobrasync/dobrasync/source/Dobrasync.Api/Dobrasync.Api.Database/obj/Debug/net8.0/Dobrasync.Api.Database.GeneratedMSBuildEditorConfig.editorconfig
+/home/skierner/Repos/OminousLama/dobrasync/dobrasync/source/Dobrasync.Api/Dobrasync.Api.Database/obj/Debug/net8.0/Dobrasync.Api.Database.AssemblyInfoInputs.cache
+/home/skierner/Repos/OminousLama/dobrasync/dobrasync/source/Dobrasync.Api/Dobrasync.Api.Database/obj/Debug/net8.0/Dobrasync.Api.Database.AssemblyInfo.cs
+/home/skierner/Repos/OminousLama/dobrasync/dobrasync/source/Dobrasync.Api/Dobrasync.Api.Database/obj/Debug/net8.0/Dobrasync.Api.Database.csproj.CoreCompileInputs.cache
+/home/skierner/Repos/OminousLama/dobrasync/dobrasync/source/Dobrasync.Api/Dobrasync.Api.Database/obj/Debug/net8.0/Dobrasyn.35004BF9.Up2Date
+/home/skierner/Repos/OminousLama/dobrasync/dobrasync/source/Dobrasync.Api/Dobrasync.Api.Database/obj/Debug/net8.0/Dobrasync.Api.Database.dll
+/home/skierner/Repos/OminousLama/dobrasync/dobrasync/source/Dobrasync.Api/Dobrasync.Api.Database/obj/Debug/net8.0/refint/Dobrasync.Api.Database.dll
+/home/skierner/Repos/OminousLama/dobrasync/dobrasync/source/Dobrasync.Api/Dobrasync.Api.Database/obj/Debug/net8.0/Dobrasync.Api.Database.pdb
+/home/skierner/Repos/OminousLama/dobrasync/dobrasync/source/Dobrasync.Api/Dobrasync.Api.Database/obj/Debug/net8.0/ref/Dobrasync.Api.Database.dll

@@ -1,0 +1,3 @@
+﻿<Project>
+  <Import Project="../buildMultiTargeting/Dobrasync.Api.Api.props" />
+</Project>

@@ -1,0 +1,11 @@
+/home/skierner/Repos/OminousLama/dobrasync/dobrasync/source/Dobrasync.Common/Dobrasync.Common.Util/bin/Debug/net8.0/Dobrasync.Common.Util.deps.json
+/home/skierner/Repos/OminousLama/dobrasync/dobrasync/source/Dobrasync.Common/Dobrasync.Common.Util/bin/Debug/net8.0/Dobrasync.Common.Util.dll
+/home/skierner/Repos/OminousLama/dobrasync/dobrasync/source/Dobrasync.Common/Dobrasync.Common.Util/bin/Debug/net8.0/Dobrasync.Common.Util.pdb
+/home/skierner/Repos/OminousLama/dobrasync/dobrasync/source/Dobrasync.Common/Dobrasync.Common.Util/obj/Debug/net8.0/Dobrasync.Common.Util.GeneratedMSBuildEditorConfig.editorconfig
+/home/skierner/Repos/OminousLama/dobrasync/dobrasync/source/Dobrasync.Common/Dobrasync.Common.Util/obj/Debug/net8.0/Dobrasync.Common.Util.AssemblyInfoInputs.cache
+/home/skierner/Repos/OminousLama/dobrasync/dobrasync/source/Dobrasync.Common/Dobrasync.Common.Util/obj/Debug/net8.0/Dobrasync.Common.Util.AssemblyInfo.cs
+/home/skierner/Repos/OminousLama/dobrasync/dobrasync/source/Dobrasync.Common/Dobrasync.Common.Util/obj/Debug/net8.0/Dobrasync.Common.Util.csproj.CoreCompileInputs.cache
+/home/skierner/Repos/OminousLama/dobrasync/dobrasync/source/Dobrasync.Common/Dobrasync.Common.Util/obj/Debug/net8.0/Dobrasync.Common.Util.dll
+/home/skierner/Repos/OminousLama/dobrasync/dobrasync/source/Dobrasync.Common/Dobrasync.Common.Util/obj/Debug/net8.0/refint/Dobrasync.Common.Util.dll
+/home/skierner/Repos/OminousLama/dobrasync/dobrasync/source/Dobrasync.Common/Dobrasync.Common.Util/obj/Debug/net8.0/Dobrasync.Common.Util.pdb
+/home/skierner/Repos/OminousLama/dobrasync/dobrasync/source/Dobrasync.Common/Dobrasync.Common.Util/obj/Debug/net8.0/ref/Dobrasync.Common.Util.dll

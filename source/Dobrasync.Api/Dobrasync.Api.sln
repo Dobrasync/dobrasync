@@ -1,0 +1,40 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dobrasync.Api.Shared", "Dobrasync.Api.Shared\Dobrasync.Api.Shared.csproj", "{EDEC0138-275E-48D6-B1AA-A72EF36375F8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dobrasync.Api.Database", "Dobrasync.Api.Database\Dobrasync.Api.Database.csproj", "{32CDC8BC-9739-49FF-9FCC-51C2D2E85B32}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dobrasync.Api.BusinessLogic", "Dobrasync.Api.BusinessLogic\Dobrasync.Api.BusinessLogic.csproj", "{6B6F3548-1465-4C24-8709-B3033CAB51CA}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dobrasync.Api.Api", "Dobrasync.Api.Api\Dobrasync.Api.Api.csproj", "{401AB6F4-77C8-416D-80FA-439A18922192}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dobrasync.Common.Util", "..\Dobrasync.Common\Dobrasync.Common.Util\Dobrasync.Common.Util.csproj", "{4E3E2A87-7BAF-4B0F-B2AA-3E55789D2503}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{EDEC0138-275E-48D6-B1AA-A72EF36375F8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EDEC0138-275E-48D6-B1AA-A72EF36375F8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EDEC0138-275E-48D6-B1AA-A72EF36375F8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EDEC0138-275E-48D6-B1AA-A72EF36375F8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{32CDC8BC-9739-49FF-9FCC-51C2D2E85B32}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{32CDC8BC-9739-49FF-9FCC-51C2D2E85B32}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{32CDC8BC-9739-49FF-9FCC-51C2D2E85B32}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{32CDC8BC-9739-49FF-9FCC-51C2D2E85B32}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6B6F3548-1465-4C24-8709-B3033CAB51CA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6B6F3548-1465-4C24-8709-B3033CAB51CA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6B6F3548-1465-4C24-8709-B3033CAB51CA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6B6F3548-1465-4C24-8709-B3033CAB51CA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{401AB6F4-77C8-416D-80FA-439A18922192}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{401AB6F4-77C8-416D-80FA-439A18922192}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{401AB6F4-77C8-416D-80FA-439A18922192}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{401AB6F4-77C8-416D-80FA-439A18922192}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4E3E2A87-7BAF-4B0F-B2AA-3E55789D2503}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4E3E2A87-7BAF-4B0F-B2AA-3E55789D2503}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4E3E2A87-7BAF-4B0F-B2AA-3E55789D2503}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4E3E2A87-7BAF-4B0F-B2AA-3E55789D2503}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal

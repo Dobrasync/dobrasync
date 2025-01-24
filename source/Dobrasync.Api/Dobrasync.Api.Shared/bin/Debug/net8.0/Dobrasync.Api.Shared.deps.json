@@ -1,0 +1,23 @@
+{
+  "runtimeTarget": {
+    "name": ".NETCoreApp,Version=v8.0",
+    "signature": ""
+  },
+  "compilationOptions": {},
+  "targets": {
+    ".NETCoreApp,Version=v8.0": {
+      "Dobrasync.Api.Shared/1.0.0": {
+        "runtime": {
+          "Dobrasync.Api.Shared.dll": {}
+        }
+      }
+    }
+  },
+  "libraries": {
+    "Dobrasync.Api.Shared/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    }
+  }
+}

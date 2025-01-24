@@ -1,0 +1,11 @@
+/home/skierner/Repos/OminousLama/dobrasync/dobrasync/source/Dobrasync.Api/Dobrasync.Api.Shared/bin/Debug/net8.0/Dobrasync.Api.Shared.deps.json
+/home/skierner/Repos/OminousLama/dobrasync/dobrasync/source/Dobrasync.Api/Dobrasync.Api.Shared/bin/Debug/net8.0/Dobrasync.Api.Shared.dll
+/home/skierner/Repos/OminousLama/dobrasync/dobrasync/source/Dobrasync.Api/Dobrasync.Api.Shared/bin/Debug/net8.0/Dobrasync.Api.Shared.pdb
+/home/skierner/Repos/OminousLama/dobrasync/dobrasync/source/Dobrasync.Api/Dobrasync.Api.Shared/obj/Debug/net8.0/Dobrasync.Api.Shared.GeneratedMSBuildEditorConfig.editorconfig
+/home/skierner/Repos/OminousLama/dobrasync/dobrasync/source/Dobrasync.Api/Dobrasync.Api.Shared/obj/Debug/net8.0/Dobrasync.Api.Shared.AssemblyInfoInputs.cache
+/home/skierner/Repos/OminousLama/dobrasync/dobrasync/source/Dobrasync.Api/Dobrasync.Api.Shared/obj/Debug/net8.0/Dobrasync.Api.Shared.AssemblyInfo.cs
+/home/skierner/Repos/OminousLama/dobrasync/dobrasync/source/Dobrasync.Api/Dobrasync.Api.Shared/obj/Debug/net8.0/Dobrasync.Api.Shared.csproj.CoreCompileInputs.cache
+/home/skierner/Repos/OminousLama/dobrasync/dobrasync/source/Dobrasync.Api/Dobrasync.Api.Shared/obj/Debug/net8.0/Dobrasync.Api.Shared.dll
+/home/skierner/Repos/OminousLama/dobrasync/dobrasync/source/Dobrasync.Api/Dobrasync.Api.Shared/obj/Debug/net8.0/refint/Dobrasync.Api.Shared.dll
+/home/skierner/Repos/OminousLama/dobrasync/dobrasync/source/Dobrasync.Api/Dobrasync.Api.Shared/obj/Debug/net8.0/Dobrasync.Api.Shared.pdb
+/home/skierner/Repos/OminousLama/dobrasync/dobrasync/source/Dobrasync.Api/Dobrasync.Api.Shared/obj/Debug/net8.0/ref/Dobrasync.Api.Shared.dll

@@ -1,0 +1,65 @@
+using Dobrasync.Api.BusinessLogic.Services.Core.AppsettingsProvider;
+using Dobrasync.Api.BusinessLogic.Services.Main.Libraries;
+using Dobrasync.Api.Database.Entities;
+using Dobrasync.Api.Database.Repos;
+using Dobrasync.Api.Shared.Exceptions.Userspace;
+using Dobrasync.Api.Shared.Util;
+using Dobrasync.Common.Util;
+using Microsoft.EntityFrameworkCore;
+using File = System.IO.File;
+
+namespace Dobrasync.Api.BusinessLogic.Services.Main.Blocks;
+
+public class BlockService(IRepoWrapper repo, IAppsettingsProviderService asp, ILibraryService libraryService) : IBlockService
+{
+    public async Task<Block?> TryDeleteOrphanBlockAsync(Guid blockId)
+    {
+        #region Load
+        Block? block = await repo.BlockRepo
+            .QueryAll()
+            .Include(x => x.Files)
+            .FirstOrDefaultAsync(x => x.Id == blockId);
+
+        if (block == null) throw new NotFoundUSException();
+        #endregion
+        #region Return if not orphaned
+        if (block.Files.Count > 0) return null;
+        #endregion
+        #region Delete
+        await repo.BlockRepo.DeleteAsync(block);
+        #endregion
+        
+        return block;
+    }
+
+    public async Task<Block> CreateBlockAsync(byte[] payload, byte[] checksum, Guid libraryId)
+    {
+        #region Load library
+        Library library = await libraryService.GetLibraryByIdAsync(libraryId);
+        #endregion
+        #region Integrity check
+        bool match = ChecksumUtil.VerifyBlockChecksum(payload, checksum);
+        if (!match) throw new ChecksumMismatchUSException();
+        #endregion
+        #region Abort if exists
+        Block? existingBlock = await repo.BlockRepo
+            .QueryAll()
+            .FirstOrDefaultAsync(x => x.Checksum == checksum);
+        
+        if (existingBlock != null) return existingBlock;
+        #endregion
+        #region Create in file system
+        string blockpath = Pathing.GetPathToBlock(asp.GetAppsettings(), library.Id, ChecksumUtil.ByteArrayToHexString(checksum));
+        await File.WriteAllBytesAsync(blockpath, payload);
+        #endregion
+        #region Create in DB
+        Block block = new()
+        {
+            Checksum = checksum
+        };
+        await repo.BlockRepo.InsertAsync(block);
+        #endregion
+        
+        return block;
+    }
+}
