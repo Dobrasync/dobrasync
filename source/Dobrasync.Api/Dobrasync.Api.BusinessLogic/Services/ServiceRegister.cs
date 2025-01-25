@@ -2,6 +2,7 @@ using Dobrasync.Api.BusinessLogic.Mapper;
 using Dobrasync.Api.BusinessLogic.Services.Core.AccessControl;
 using Dobrasync.Api.BusinessLogic.Services.Core.AppsettingsProvider;
 using Dobrasync.Api.BusinessLogic.Services.Core.Invoker;
+using Dobrasync.Api.BusinessLogic.Services.Core.Logger;
 using Dobrasync.Api.BusinessLogic.Services.Main.Blocks;
 using Dobrasync.Api.BusinessLogic.Services.Main.Files;
 using Dobrasync.Api.BusinessLogic.Services.Main.Libraries;
@@ -21,6 +22,7 @@ public static class ServiceRegister
         serviceCollection.AddScoped<IAccessControlService, AccessControlService>();
         serviceCollection.AddScoped<IAppsettingsProviderService, AppsettingsProviderService>();
         serviceCollection.AddScoped<IInvokerService, InvokerService>();
+        serviceCollection.AddScoped<ILoggerService, LoggerService>();
         #endregion
         #region Main
         serviceCollection.AddScoped<ILibraryService, LibraryService>();
