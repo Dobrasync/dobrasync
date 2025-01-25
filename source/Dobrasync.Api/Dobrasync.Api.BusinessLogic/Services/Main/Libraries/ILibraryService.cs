@@ -1,4 +1,5 @@
 using Dobrasync.Api.BusinessLogic.Dtos;
+using Dobrasync.Api.BusinessLogic.Dtos.Diff;
 using Dobrasync.Api.Database.Entities;
 using File = Dobrasync.Api.Database.Entities.File;
 
@@ -16,4 +17,5 @@ public interface ILibraryService
     public Task<LibraryDto> DeleteLibraryMappedAsync(Guid libraryId);
     public Task<File> GetLibraryFileAsync(Guid libraryId, string path);
     public Task<FileDto> GetLibraryFileMappedAsync(Guid libraryId, string path);
+    public Task<List<string>> MakeDiffMappedAsync(Guid libraryId, DiffCreateDto diffCreateDto);
 }

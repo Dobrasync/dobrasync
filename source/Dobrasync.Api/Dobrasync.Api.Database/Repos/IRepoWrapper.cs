@@ -10,4 +10,6 @@ public interface IRepoWrapper
     IRepo<Block> BlockRepo { get; }
     IRepo<Library> LibraryRepo { get; }
     IRepo<File> FileRepo { get; }
+    IRepo<Transaction> TransactionRepo { get; }
+    IRepo<Client> ClientRepo { get; }
 }

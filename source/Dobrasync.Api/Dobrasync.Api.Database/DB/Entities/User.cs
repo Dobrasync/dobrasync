@@ -10,4 +10,9 @@ public class User : BaseEntity
     /// Libraries owned by user.
     /// </summary>
     public virtual HashSet<Library> Libraries { get; set; } = new();
+
+    /// <summary>
+    /// Clients registered to this user.
+    /// </summary>
+    public virtual HashSet<Client> Clients { get; set; } = new();
 }

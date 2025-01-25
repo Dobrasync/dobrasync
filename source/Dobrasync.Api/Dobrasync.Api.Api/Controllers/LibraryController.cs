@@ -1,6 +1,8 @@
 using Dobrasync.Api.Api.Controllers.Base;
 using Dobrasync.Api.BusinessLogic.Dtos;
+using Dobrasync.Api.BusinessLogic.Dtos.Diff;
 using Dobrasync.Api.BusinessLogic.Services.Main.Libraries;
+using Dobrasync.Api.Shared.Enums;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
 
@@ -51,5 +53,16 @@ public class LibraryController(ILibraryService libraryService) : BaseController
         FileDto file = await libraryService.GetLibraryFileMappedAsync(libraryId, path);
 
         return Ok(file);
+    }
+    
+    [HttpPost("{libraryId}/diff")]
+    [SwaggerOperation(
+        OperationId = nameof(MakeLibraryDiffAsync)
+    )]
+    public async Task<ActionResult<List<string>>> MakeLibraryDiffAsync(Guid libraryId, DiffCreateDto diffCreateDto)
+    {
+        List<string> diff = await libraryService.MakeDiffMappedAsync(libraryId, diffCreateDto);
+
+        return Ok(diff);
     }
 }

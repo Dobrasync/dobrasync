@@ -1,10 +1,14 @@
 using AutoMapper;
 using Dobrasync.Api.BusinessLogic.Dtos;
+using Dobrasync.Api.BusinessLogic.Dtos.Diff;
 using Dobrasync.Api.BusinessLogic.Services.Core.AccessControl;
 using Dobrasync.Api.BusinessLogic.Services.Main.Files;
+using Dobrasync.Api.BusinessLogic.Services.Main.Transactions;
 using Dobrasync.Api.Database.Entities;
 using Dobrasync.Api.Database.Repos;
+using Dobrasync.Api.Shared.Enums;
 using Dobrasync.Api.Shared.Exceptions.Userspace;
+using Dobrasync.Common.Util;
 using Microsoft.EntityFrameworkCore;
 using File = Dobrasync.Api.Database.Entities.File;
 
@@ -118,5 +122,40 @@ public class LibraryService(IRepoWrapper repo, IMapper mapper, IAccessControlSer
         File file = await GetLibraryFileAsync(libraryId, path);
 
         return mapper.Map<FileDto>(file);
+    }
+
+    public async Task<List<string>> MakeDiffMappedAsync(Guid libraryId, DiffCreateDto diffCreateDto)
+    {
+        #region Load
+        Library? library = await repo.LibraryRepo
+            .QueryAll()
+            .Include(x => x.Files)
+            .ThenInclude(x => x.Blocks)
+            .FirstOrDefaultAsync(x => x.Id == libraryId);
+        
+        if (library == null) throw new NotFoundUSException();
+        #endregion
+        
+        List<string> allFilePaths = library.Files.Select(x => x.Path).ToList();
+        allFilePaths.AddRange(diffCreateDto.FilesOnLocal.Select(x => x.Path).Except(allFilePaths));
+        
+        List<string> diff = [];
+        foreach (string path in allFilePaths)
+        {
+            File? fileOnRemote = library.Files.FirstOrDefault(x => x.Path == path);
+            if (fileOnRemote == null)
+            {
+                diff.Add(path);
+                continue;
+            }
+         
+            DiffFileDescriptionDto fileOnLocal = diffCreateDto.FilesOnLocal.First(x => x.Path == path);
+            if (fileOnLocal.ModifiedOnUtc != fileOnRemote.ModifiedOnUtc)
+            {
+                diff.Add(path);
+            }
+        }
+
+        return diff;
     }
 }
