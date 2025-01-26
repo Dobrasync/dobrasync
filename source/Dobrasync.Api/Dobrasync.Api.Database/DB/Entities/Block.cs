@@ -4,6 +4,6 @@ namespace Dobrasync.Api.Database.Entities;
 
 public class Block : BaseEntity
 {
-    public HashSet<File> Files { get; set; } = new();
+    public HashSet<Version> Versions { get; set; } = new();
     public byte[] Checksum { get; set; } = [];
 }

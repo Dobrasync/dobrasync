@@ -2,6 +2,7 @@ using Dobrasync.Api.Database.DB;
 using Dobrasync.Api.Database.Entities;
 using Microsoft.AspNetCore.Http;
 using File = Dobrasync.Api.Database.Entities.File;
+using Version = Dobrasync.Api.Database.Entities.Version;
 
 namespace Dobrasync.Api.Database.Repos;
 
@@ -11,7 +12,7 @@ public class RepoWrapper(DobrasyncContext context, IHttpContextAccessor hca) : I
     private IRepo<File> _fileRepo = null!;
     private IRepo<Library> _libraryRepo = null!;
     private IRepo<Client> _clientRepo = null!;
-    private IRepo<Transaction> _transactionRepo = null!;
+    private IRepo<Version> _transactionRepo = null!;
 
     public DobrasyncContext DbContext => context;
 
@@ -31,9 +32,9 @@ public class RepoWrapper(DobrasyncContext context, IHttpContextAccessor hca) : I
         get { return _blockRepo ??= new Repo<Block>(context, hca); }
     }
     
-    public IRepo<Transaction> TransactionRepo
+    public IRepo<Version> VersionRepo
     {
-        get { return _transactionRepo ??= new Repo<Transaction>(context, hca); }
+        get { return _transactionRepo ??= new Repo<Version>(context, hca); }
     }
     
     public IRepo<Client> ClientRepo

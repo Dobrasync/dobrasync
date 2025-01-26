@@ -5,6 +5,4 @@ namespace Dobrasync.Api.BusinessLogic.Dtos.Diff;
 public class DiffCreateDto
 {
     public List<DiffFileDescriptionDto> FilesOnLocal { get; set; } = new();
-    public List<Guid> TransactionsOnLocal { get; set; } = new();
-    public EDiffIntent DiffIntent { get; set; }
 }

@@ -1,6 +1,7 @@
 using AutoMapper;
 using Dobrasync.Api.BusinessLogic.Dtos;
 using Dobrasync.Api.BusinessLogic.Services.Main.Blocks;
+using Dobrasync.Api.BusinessLogic.Services.Main.Transactions;
 using Dobrasync.Api.Database.Entities;
 using Dobrasync.Api.Database.Repos;
 using Dobrasync.Api.Shared.Exceptions.Userspace;
@@ -9,12 +10,15 @@ using File = Dobrasync.Api.Database.Entities.File;
 
 namespace Dobrasync.Api.BusinessLogic.Services.Main.Files;
 
-public class FileService(IRepoWrapper repo, IBlockService blockService, IMapper mapper) : IFileService
+public class FileService(IRepoWrapper repo, IMapper mapper) : IFileService
 {
     public async Task<File> GetFileByIdAsync(Guid fileId)
     {
         #region Load
-        File? file = await repo.FileRepo.QueryAll().FirstOrDefaultAsync(x => x.Id == fileId);
+        File? file = await repo.FileRepo
+            .QueryAll()
+            .Include(x => x.Versions)
+            .FirstOrDefaultAsync(x => x.Id == fileId);
         if (file == null) throw new NotFoundUSException();
         #endregion
 
@@ -31,22 +35,18 @@ public class FileService(IRepoWrapper repo, IBlockService blockService, IMapper 
     public async Task<File> DeleteFileAsync(Guid fileId)
     {
         #region Load file
-        File? file = repo.FileRepo.QueryAll().Include(x => x.Blocks).FirstOrDefault(x => x.Id == fileId);
+        File? file = repo.FileRepo.QueryAll()
+            .Include(x => x.Versions)
+            .FirstOrDefault(x => x.Id == fileId);
         if (file == null)
         {
             throw new NotFoundUSException();
         }
         #endregion
-        #region Delete orphan blocks
-        foreach (var block in file.Blocks)
-        {
-            await blockService.TryDeleteOrphanBlockAsync(block.Id);
-        }
-        #endregion
         #region Delete file
         await repo.FileRepo.DeleteAsync(file);
         #endregion
-
+        
         return file;
     }
 

@@ -17,13 +17,13 @@ public class BlockService(IRepoWrapper repo, IAppsettingsProviderService asp, IL
         #region Load
         Block? block = await repo.BlockRepo
             .QueryAll()
-            .Include(x => x.Files)
+            .Include(x => x.Versions)
             .FirstOrDefaultAsync(x => x.Id == blockId);
 
         if (block == null) throw new NotFoundUSException();
         #endregion
         #region Return if not orphaned
-        if (block.Files.Count > 0) return null;
+        if (block.Versions.Count > 0) return null;
         #endregion
         #region Delete
         await repo.BlockRepo.DeleteAsync(block);
@@ -32,6 +32,25 @@ public class BlockService(IRepoWrapper repo, IAppsettingsProviderService asp, IL
         return block;
     }
 
+    public async Task<List<Block>> DeleteAllOrphanBlocksAsync()
+    {
+        #region Load
+        List<Block> orphans = repo.BlockRepo
+            .QueryAll()
+            .Where(x => x.Versions.Count == 0)
+            .ToList();
+        #endregion
+
+        List<Block> deleted = [];
+        foreach (Block orphan in orphans)
+        {
+            Block? res = await TryDeleteOrphanBlockAsync(orphan.Id);
+            if (res != null) deleted.Add(res);
+        }
+
+        return deleted;
+    }
+    
     public async Task<Block> CreateBlockAsync(byte[] payload, byte[] checksum, Guid libraryId)
     {
         #region Load library

@@ -13,6 +13,12 @@ public interface IBlockService
     public Task<Block?> TryDeleteOrphanBlockAsync(Guid blockId);
     
     /// <summary>
+    /// Scans database for orphaned blocks and deletes them.
+    /// </summary>
+    /// <returns>List of deleted blocks</returns>
+    public Task<List<Block>> DeleteAllOrphanBlocksAsync();
+    
+    /// <summary>
     /// Creates a new block in the file system and db without parent.
     ///
     /// If block already exists, abort creation and return existing.

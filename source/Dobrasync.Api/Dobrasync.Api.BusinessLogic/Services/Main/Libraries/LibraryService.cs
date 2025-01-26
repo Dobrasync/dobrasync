@@ -11,6 +11,7 @@ using Dobrasync.Api.Shared.Exceptions.Userspace;
 using Dobrasync.Common.Util;
 using Microsoft.EntityFrameworkCore;
 using File = Dobrasync.Api.Database.Entities.File;
+using Version = Dobrasync.Api.Database.Entities.Version;
 
 namespace Dobrasync.Api.BusinessLogic.Services.Main.Libraries;
 
@@ -130,7 +131,7 @@ public class LibraryService(IRepoWrapper repo, IMapper mapper, IAccessControlSer
         Library? library = await repo.LibraryRepo
             .QueryAll()
             .Include(x => x.Files)
-            .ThenInclude(x => x.Blocks)
+            .ThenInclude(x => x.Versions)
             .FirstOrDefaultAsync(x => x.Id == libraryId);
         
         if (library == null) throw new NotFoundUSException();
@@ -150,9 +151,30 @@ public class LibraryService(IRepoWrapper repo, IMapper mapper, IAccessControlSer
             }
          
             DiffFileDescriptionDto fileOnLocal = diffCreateDto.FilesOnLocal.First(x => x.Path == path);
-            if (fileOnLocal.ModifiedOnUtc != fileOnRemote.ModifiedOnUtc)
+            Version? latestVersionOnRemote = repo.VersionRepo.QueryAll()
+                .OrderByDescending(x => x.CreatedUtc)
+                .FirstOrDefault();
+
+            // Server doesn't have a version for this file, client needs to push
+            if (latestVersionOnRemote == null)
             {
                 diff.Add(path);
+                continue;
+            }
+
+            // Client doesnt know about latest file version on server
+            if (latestVersionOnRemote.Id != fileOnLocal.LatestVersionId)
+            {
+                diff.Add(path);
+                continue;
+            }
+            
+            // if versions match on both client and server, check if checksums are different
+            // if checksums differ it means the client want to create a new version
+            if (fileOnLocal.FileChecksum != latestVersionOnRemote.FileChecksum)
+            {
+                diff.Add(path);
+                continue;
             }
         }
 
