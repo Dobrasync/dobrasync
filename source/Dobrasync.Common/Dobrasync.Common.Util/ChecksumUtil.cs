@@ -12,6 +12,14 @@ public static class ChecksumUtil
         }
     }
     
+    public static byte[] CalculateFileChecksum(byte[] totalFileContent)
+    {
+        using (SHA256 sha256 = SHA256.Create())
+        {
+            return sha256.ComputeHash(totalFileContent);
+        }
+    }
+    
     public static bool VerifyBlockChecksum(byte[] payload, byte[] checksum)
     {
         byte[] calculatedChecksum = CalculateBlockChecksum(payload);

@@ -14,6 +14,26 @@ public class VersionService(IRepoWrapper repo, IBlockService blockService) : IVe
 {
     public async Task<Version> CreateAsync(VersionCreateDto createDto)
     {
+        #region Load library
+        Library? library = repo.LibraryRepo.QueryAll().FirstOrDefault(x => x.Id == createDto.LibraryId);
+        if (library == null)
+        {
+            throw new NotFoundUSException();
+        }
+        #endregion
+        #region Load or create file this version belongs to
+        File? targetFile = await repo.FileRepo
+            .QueryAll()
+            .Include(x => x.Library)
+            .Where(x => x.Library.Id == createDto.LibraryId)
+            .FirstOrDefaultAsync(x => x.Path == createDto.FilePath);
+
+        if (targetFile == null)
+        {
+            targetFile = await CreateNewFile(library, createDto.FilePath);
+        }
+        #endregion
+        
         Version version = new()
         {
             FileCreatedOnUtc = createDto.FileCreatedOnUtc,
@@ -28,6 +48,19 @@ public class VersionService(IRepoWrapper repo, IBlockService blockService) : IVe
         await repo.VersionRepo.InsertAsync(version);
         
         return version;
+    }
+
+    private async Task<File> CreateNewFile(Library library, string path)
+    {
+        File newFile = new()
+        {
+            Library = library,
+            Path = path,
+        };
+        
+        await repo.FileRepo.InsertAsync(newFile);
+
+        return newFile;
     }
 
     public async Task<Version> CompleteAsync(Guid transactionId)
