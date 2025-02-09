@@ -43,6 +43,7 @@ public class VersionService(IRepoWrapper repo, IBlockService blockService) : IVe
             CreatedUtc = DateTimeOffset.UtcNow,
             FileChecksum = createDto.FileChecksum,
             FilePermissionsOctal = createDto.FilePermissionsOctal,
+            File = targetFile,
         };
 
         await repo.VersionRepo.InsertAsync(version);

@@ -9,6 +9,7 @@
     <ItemGroup>
       <PackageReference Include="Asp.Versioning.Mvc" Version="8.1.0" />
       <PackageReference Include="Asp.Versioning.Mvc.ApiExplorer" Version="8.1.0" />
+      <PackageReference Include="Gridify.EntityFramework" Version="2.16.1" />
       <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.1" />
       <PackageReference Include="MySql.EntityFrameworkCore" Version="9.0.0" />
       <PackageReference Include="Quartz" Version="3.13.1" />
