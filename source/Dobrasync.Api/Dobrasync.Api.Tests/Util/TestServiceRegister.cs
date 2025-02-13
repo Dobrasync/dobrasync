@@ -1,3 +1,4 @@
+using Dobrasync.Api.BusinessLogic.Services.Core.AppsettingsProvider;
 using Dobrasync.Api.Database.DB;
 using Dobrasync.Api.Tests.Mock;
 using Microsoft.AspNetCore.Http;
@@ -12,5 +13,6 @@ public class TestServiceRegister
     {
         serviceCollection.AddDbContext<DobrasyncContext>(opt => { opt.UseInMemoryDatabase($"Test-{Guid.NewGuid()}"); });
         serviceCollection.AddScoped<IHttpContextAccessor, HttpContextAccessorMock>();
+        serviceCollection.AddScoped<IAppsettingsProviderService, MockAppsettingsProviderService>();
     }
 }

@@ -71,7 +71,7 @@ public class VersionService(IRepoWrapper repo, IBlockService blockService, IMapp
             await repo.BlockRepo
                 .QueryAll()
                 .Where(x => createDto.ExpectedBlocks
-                    .Any(b => b.Equals(x)))
+                    .Any(b => b.Equals(x.Checksum)))
                 .ToListAsync();
 
         
@@ -112,12 +112,19 @@ public class VersionService(IRepoWrapper repo, IBlockService blockService, IMapp
         var expectedBLockIndices = transaction.ExpectedBlocks
             .Select((checksum, index) => new { checksum, index })
             .ToList();
-
+        
+        // debug
+        List<Block> allBLocks = await repo.BlockRepo.QueryAll().ToListAsync();
+        
         List<Block> blocks = await repo.BlockRepo
             .QueryAll()
-            .Where(x => transaction.ExpectedBlocks.Contains(x.Checksum))
-            .OrderBy(x => expectedBLockIndices.FindIndex(ci => ci.checksum.SequenceEqual(x.Checksum)))
+            .Where(x => transaction.ExpectedBlocks.Any(b => b == x.Checksum))
             .ToListAsync();
+        
+        blocks = blocks
+            .OrderBy(x => expectedBLockIndices.FindIndex(
+                ci => ci.checksum.SequenceEqual(x.Checksum)))
+            .ToList();
             
         #region verify block order
         for (int i = 0; i < transaction.ExpectedBlocks.Count(); i++)

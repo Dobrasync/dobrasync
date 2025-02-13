@@ -21,6 +21,8 @@ public static class ServiceRegister
         serviceCollection.AddAutoMapper(cfg =>
         {
             cfg.AddProfile<FileMappingProfile>();
+            cfg.AddProfile<VersionMappingProfile>();
+            cfg.AddProfile<LibraryMappingProfile>();
         });
         #region Core
         serviceCollection.AddScoped<IRepoWrapper, RepoWrapper>();

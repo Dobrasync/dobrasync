@@ -2,12 +2,14 @@ using AutoMapper;
 using Dobrasync.Api.BusinessLogic.Dtos;
 using Dobrasync.Api.BusinessLogic.Dtos.Diff;
 using Dobrasync.Api.BusinessLogic.Services.Core.AccessControl;
+using Dobrasync.Api.BusinessLogic.Services.Core.AppsettingsProvider;
 using Dobrasync.Api.BusinessLogic.Services.Main.Files;
 using Dobrasync.Api.BusinessLogic.Services.Main.Transactions;
 using Dobrasync.Api.Database.Entities;
 using Dobrasync.Api.Database.Repos;
 using Dobrasync.Api.Shared.Enums;
 using Dobrasync.Api.Shared.Exceptions.Userspace;
+using Dobrasync.Api.Shared.Util;
 using Dobrasync.Common.Util;
 using Microsoft.EntityFrameworkCore;
 using File = Dobrasync.Api.Database.Entities.File;
@@ -15,7 +17,7 @@ using Version = Dobrasync.Api.Database.Entities.Version;
 
 namespace Dobrasync.Api.BusinessLogic.Services.Main.Libraries;
 
-public class LibraryService(IRepoWrapper repo, IMapper mapper, IAccessControlService acs, IFileService fileService) : ILibraryService
+public class LibraryService(IRepoWrapper repo, IMapper mapper, IAccessControlService acs, IFileService fileService, IAppsettingsProviderService apps) : ILibraryService
 {
     public async Task<Library> GetLibraryByNameAsync(string name)
     {
@@ -58,12 +60,14 @@ public class LibraryService(IRepoWrapper repo, IMapper mapper, IAccessControlSer
         {
             throw new LibraryNameConflictUSException();
         }
-
+        
         Library newLibrary = new()
         {
             Name = name
         };
         Library created = await repo.LibraryRepo.InsertAsync(newLibrary);
+        
+        Directory.CreateDirectory(Pathing.GetPathToLibraryData(apps.GetAppsettings(), created.Id));
         
         return created;
     }

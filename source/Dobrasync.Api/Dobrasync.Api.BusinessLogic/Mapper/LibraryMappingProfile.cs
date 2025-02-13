@@ -1,13 +1,14 @@
 using AutoMapper;
 using Dobrasync.Api.BusinessLogic.Dtos;
+using Dobrasync.Api.Database.Entities;
 using File = Dobrasync.Api.Database.Entities.File;
 
 namespace Dobrasync.Api.BusinessLogic.Mapper;
 
-public class FileMappingProfile : Profile
+public class LibraryMappingProfile : Profile
 {
-    public FileMappingProfile()
+    public LibraryMappingProfile()
     {
-        CreateMap<File, FileDto>();
+        CreateMap<Library, LibraryDto>();
     }
 }
