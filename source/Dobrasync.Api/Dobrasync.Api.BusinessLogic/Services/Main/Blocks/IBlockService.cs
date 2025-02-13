@@ -27,5 +27,5 @@ public interface IBlockService
     /// <param name="payload">Block payload</param>
     /// <param name="libraryId">Library this block belongs to</param>
     /// <returns></returns>
-    public Task<Block> CreateBlockAsync(byte[] payload, byte[] checksum, Guid libraryId);
+    public Task<Block> CreateBlockAsync(byte[] payload, string checksum, Guid libraryId);
 }

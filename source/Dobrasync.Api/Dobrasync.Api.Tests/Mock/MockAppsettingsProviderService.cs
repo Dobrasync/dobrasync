@@ -11,7 +11,7 @@ public class MockAppsettingsProviderService : IAppsettingsProviderService
         {
             Storage = new()
             {
-                DataDirectory = "/tmp"
+                DataDirectory = "./tmp"
             }
         };
     }

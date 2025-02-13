@@ -42,7 +42,7 @@ public class DiffTest : IClassFixture<PopulatedSingleLibraryFixture>
     [Fact]
     public async Task GenerateDiffNewerLocalFileTest()
     {
-        byte[] localFileChecksum = ChecksumUtil.CalculateFileChecksum(
+        string localFileChecksum = ChecksumUtil.CalculateFileChecksum(
             await System.IO.File.ReadAllBytesAsync(PopulatedSingleLibraryFixture.TestFileNewerOnlylocalSourcePath)
         );
         

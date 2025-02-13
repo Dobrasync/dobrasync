@@ -1,45 +1,37 @@
 ﻿using System.Security.Cryptography;
+using System.Text;
 
 namespace Dobrasync.Common.Util;
 
 public static class ChecksumUtil
 {
-    public static byte[] CalculateBlockChecksum(byte[] payload)
+    public static string CalculateBlockChecksum(byte[] payload)
     {
-        using (SHA256 sha256 = SHA256.Create())
-        {
-            return sha256.ComputeHash(payload);
-        }
-    }
-    
-    public static byte[] CalculateFileChecksum(byte[] totalFileContent)
-    {
-        using (SHA256 sha256 = SHA256.Create())
-        {
-            return sha256.ComputeHash(totalFileContent);
-        }
-    }
-    
-    public static bool VerifyBlockChecksum(byte[] payload, byte[] checksum)
-    {
-        byte[] calculatedChecksum = CalculateBlockChecksum(payload);
-        
-        return calculatedChecksum.SequenceEqual(checksum);
-    }
+        if (payload == null)
+            throw new ArgumentNullException(nameof(payload), "Input data cannot be null.");
 
-    public static string ByteArrayToHexString(byte[] byteArray)
-    {
-        return BitConverter.ToString(byteArray).Replace("-", "").ToLower();
+        using (SHA256 sha256 = SHA256.Create())
+        {
+            byte[] hashBytes = sha256.ComputeHash(payload);
+
+            // Convert the byte array to a hexadecimal string
+            StringBuilder sb = new StringBuilder(hashBytes.Length * 2);
+            foreach (byte b in hashBytes)
+            {
+                sb.AppendFormat("{0:x2}", b);
+            }
+            return sb.ToString();
+        }
     }
     
-    public static byte[] HexStringToByteArray(string hexString)
+    public static string CalculateFileChecksum(byte[] totalFileContent)
     {
-        int length = hexString.Length;
-        byte[] byteArray = new byte[length / 2];
-        for (int i = 0; i < length; i += 2)
-        {
-            byteArray[i / 2] = Convert.ToByte(hexString.Substring(i, 2), 16);
-        }
-        return byteArray;
+        // TODO just use the same algo for now
+        return CalculateBlockChecksum(totalFileContent);
+    }
+    
+    public static bool VerifyBlockChecksum(byte[] payload, string checksum)
+    {
+        return CalculateBlockChecksum(payload) == checksum;
     }
 }

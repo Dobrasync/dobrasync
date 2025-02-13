@@ -75,7 +75,7 @@ public class VersionService(IRepoWrapper repo, IBlockService blockService, IMapp
                 .ToListAsync();
 
         
-        List<byte[]> requiredBlocks = createDto.ExpectedBlocks.Except(blocksAlreadyOnRemote.Select(x => x.Checksum)).ToList();
+        List<string> requiredBlocks = createDto.ExpectedBlocks.Except(blocksAlreadyOnRemote.Select(x => x.Checksum)).ToList();
         #endregion
         
         await repo.VersionRepo.InsertAsync(version);
@@ -129,8 +129,8 @@ public class VersionService(IRepoWrapper repo, IBlockService blockService, IMapp
         #region verify block order
         for (int i = 0; i < transaction.ExpectedBlocks.Count(); i++)
         {
-            byte[] expectedBlock = transaction.ExpectedBlocks[i];
-            byte[] actualBlock = blocks[i].Checksum;
+            string expectedBlock = transaction.ExpectedBlocks[i];
+            string actualBlock = blocks[i].Checksum;
 
             if (actualBlock != expectedBlock)
             {

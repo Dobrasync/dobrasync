@@ -154,13 +154,13 @@ public class LibraryService(IRepoWrapper repo, IMapper mapper, IAccessControlSer
                 continue;
             }
          
-            DiffFileDescriptionDto fileOnLocal = diffCreateDto.FilesOnLocal.First(x => x.Path == path);
+            DiffFileDescriptionDto? fileOnLocal = diffCreateDto.FilesOnLocal.FirstOrDefault(x => x.Path == path);
             Version? latestVersionOnRemote = repo.VersionRepo.QueryAll()
                 .OrderByDescending(x => x.CreatedUtc)
                 .FirstOrDefault();
 
             // Server doesn't have a version for this file, client needs to push
-            if (latestVersionOnRemote == null)
+            if (latestVersionOnRemote == null || fileOnLocal == null)
             {
                 diff.Add(path);
                 continue;

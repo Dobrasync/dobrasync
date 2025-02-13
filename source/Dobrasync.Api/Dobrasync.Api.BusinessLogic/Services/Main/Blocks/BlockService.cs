@@ -51,7 +51,7 @@ public class BlockService(IRepoWrapper repo, IAppsettingsProviderService asp, IL
         return deleted;
     }
     
-    public async Task<Block> CreateBlockAsync(byte[] payload, byte[] checksum, Guid libraryId)
+    public async Task<Block> CreateBlockAsync(byte[] payload, string checksum, Guid libraryId)
     {
         #region Load library
         Library library = await libraryService.GetLibraryByIdAsync(libraryId);
@@ -68,7 +68,7 @@ public class BlockService(IRepoWrapper repo, IAppsettingsProviderService asp, IL
         if (existingBlock != null) return existingBlock;
         #endregion
         #region Create in file system
-        string blockpath = Pathing.GetPathToBlock(asp.GetAppsettings(), library.Id, ChecksumUtil.ByteArrayToHexString(checksum));
+        string blockpath = Pathing.GetPathToBlock(asp.GetAppsettings(), library.Id, checksum);
         await File.WriteAllBytesAsync(blockpath, payload);
         #endregion
         #region Create in DB

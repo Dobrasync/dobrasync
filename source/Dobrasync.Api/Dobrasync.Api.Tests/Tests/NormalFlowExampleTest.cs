@@ -55,7 +55,7 @@ public class NormalFlowExampleTest : IClassFixture<PopulatedSingleLibraryFixture
 
         FileInfo sourceFileInfo = new FileInfo("Data/Testfile.txt");
         byte[] sourceFileBytes = File.ReadAllBytes("Data/Testfile.txt");
-        byte[] sourceFileChecksum = ChecksumUtil.CalculateFileChecksum(sourceFileBytes);
+        string sourceFileChecksum = ChecksumUtil.CalculateFileChecksum(sourceFileBytes);
         List<byte[]> sourceFileBlocks = Chunker.ContentToBlocks(sourceFileBytes);
         
         List<string> firstDiff = await libraryService.MakeDiffMappedAsync(libraryDto.Id, new()
@@ -94,7 +94,7 @@ public class NormalFlowExampleTest : IClassFixture<PopulatedSingleLibraryFixture
                     LibraryId = libraryDto.Id,
                 });
 
-                foreach (byte[] requiredBlockChecksum in createdResult.RequiredBlocks)
+                foreach (string requiredBlockChecksum in createdResult.RequiredBlocks)
                 {
                     byte[]? blockContentMatch = sourceFileBlocks.Find(b => ChecksumUtil.CalculateBlockChecksum(b).SequenceEqual(requiredBlockChecksum));
                     if (blockContentMatch == null)
