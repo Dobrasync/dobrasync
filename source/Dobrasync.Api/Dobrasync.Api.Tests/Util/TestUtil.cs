@@ -1,3 +1,4 @@
+using Dobrasync.Api.BusinessLogic.Dtos.Versions;
 using Dobrasync.Api.BusinessLogic.Services.Main.Blocks;
 using Dobrasync.Api.BusinessLogic.Services.Main.Files;
 using Dobrasync.Api.BusinessLogic.Services.Main.Libraries;
@@ -10,12 +11,12 @@ namespace Dobrasync.Api.Tests.Util;
 
 public class TestUtil
 {
-    public static async Task<Version> EnsureFileCreatedInLibrary(string path, string sourcepath, Guid libraryId, IVersionService versionService)
+    public static async Task<VersionCreateResultDto> EnsureFileCreatedInLibrary(string path, string sourcepath, Guid libraryId, IVersionService versionService)
     {
         return await NewFileVersion(path, sourcepath, libraryId, versionService);
     }
 
-    public static async Task<Version> NewFileVersion(string path, string sourcepath, Guid libraryId,
+    public static async Task<VersionCreateResultDto> NewFileVersion(string path, string sourcepath, Guid libraryId,
         IVersionService versionService)
     {
         var fileInfo = new FileInfo(sourcepath);
@@ -23,7 +24,7 @@ public class TestUtil
         byte[] sourceContent = await File.ReadAllBytesAsync(sourcepath);
         List<byte[]> blocks = Chunker.ContentToBlocks(sourceContent).ToList();
         
-        return await versionService.CreateAsync(new()
+        return await versionService.CreateVersionAsync(new()
         {
             FilePath = path,
             LibraryId = libraryId,

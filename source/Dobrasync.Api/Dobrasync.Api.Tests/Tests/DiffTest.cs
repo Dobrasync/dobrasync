@@ -52,7 +52,7 @@ public class DiffTest : IClassFixture<PopulatedSingleLibraryFixture>
                 new() {
                     Path = PopulatedSingleLibraryFixture.TestFilePath,
                     FileChecksum = localFileChecksum,
-                    LatestVersionId = PopulatedSingleLibraryFixture.CurrentFileVersion.Id
+                    LatestVersionId = PopulatedSingleLibraryFixture.CurrentFileVersion.CreatedVersion.Id
                 }
             ]
         });

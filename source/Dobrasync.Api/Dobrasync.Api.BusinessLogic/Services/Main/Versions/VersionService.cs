@@ -1,3 +1,4 @@
+using AutoMapper;
 using Dobrasync.Api.BusinessLogic.Dtos.Versions;
 using Dobrasync.Api.BusinessLogic.Services.Main.Blocks;
 using Dobrasync.Api.Database.Entities;
@@ -10,12 +11,31 @@ using Version = Dobrasync.Api.Database.Entities.Version;
 
 namespace Dobrasync.Api.BusinessLogic.Services.Main.Transactions;
 
-public class VersionService(IRepoWrapper repo, IBlockService blockService) : IVersionService
+public class VersionService(IRepoWrapper repo, IBlockService blockService, IMapper mapper) : IVersionService
 {
-    public async Task<Version> CreateAsync(VersionCreateDto createDto)
+    public async Task<Version> GetVersionRequiredAsync(Guid id)
+    {
+        Version? version = await repo.VersionRepo.QueryAll().FirstOrDefaultAsync(x => x.Id == id);
+        if (version == null)
+        {
+            throw new NotFoundUSException();
+        }
+        
+        return version;
+    }
+
+    public async Task<VersionDto> GetVersionRequiredMappedAsync(Guid id)
+    {
+        return mapper.Map<VersionDto>(await GetVersionRequiredAsync(id));
+    }
+
+    public async Task<VersionCreateResultDto> CreateVersionAsync(VersionCreateDto createDto)
     {
         #region Load library
-        Library? library = repo.LibraryRepo.QueryAll().FirstOrDefault(x => x.Id == createDto.LibraryId);
+        Library? library = repo.LibraryRepo
+            .QueryAll()
+            .FirstOrDefault(x => x.Id == createDto.LibraryId);
+        
         if (library == null)
         {
             throw new NotFoundUSException();
@@ -46,9 +66,30 @@ public class VersionService(IRepoWrapper repo, IBlockService blockService) : IVe
             File = targetFile,
         };
 
+        #region Determine required blocks
+        List<Block> blocksAlreadyOnRemote =
+            await repo.BlockRepo
+                .QueryAll()
+                .Where(x => createDto.ExpectedBlocks
+                    .Any(b => b.Equals(x)))
+                .ToListAsync();
+
+        
+        List<byte[]> requiredBlocks = createDto.ExpectedBlocks.Except(blocksAlreadyOnRemote.Select(x => x.Checksum)).ToList();
+        #endregion
+        
         await repo.VersionRepo.InsertAsync(version);
         
-        return version;
+        return new()
+        {
+            CreatedVersion = mapper.Map<VersionDto>(version),
+            RequiredBlocks = requiredBlocks,
+        };
+    }
+
+    public async Task<VersionCreateResultDto> CreateVersionMappedAsync(VersionCreateDto createDto)
+    {
+        return await CreateVersionAsync(createDto);
     }
 
     private async Task<File> CreateNewFile(Library library, string path)
@@ -66,7 +107,7 @@ public class VersionService(IRepoWrapper repo, IBlockService blockService) : IVe
 
     public async Task<Version> CompleteAsync(Guid transactionId)
     {
-        Version? transaction = await GetTransactionAsync(transactionId);
+        Version? transaction = await GetVersionRequiredAsync(transactionId);
         
         var expectedBLockIndices = transaction.ExpectedBlocks
             .Select((checksum, index) => new { checksum, index })
@@ -97,9 +138,9 @@ public class VersionService(IRepoWrapper repo, IBlockService blockService) : IVe
         return transaction;
     }
 
-    public async Task<bool> IsFileLockedAsync(Guid file)
+    public async Task<VersionDto> CompleteMappedAsync(Guid transactionId)
     {
-        return false;
+        return mapper.Map<VersionDto>(await CompleteAsync(transactionId));
     }
 
     public async Task<Version> DeleteVersionAsync(Guid versionId)
@@ -121,13 +162,5 @@ public class VersionService(IRepoWrapper repo, IBlockService blockService) : IVe
         }
         
         return version;
-    }
-
-    private async Task<Version> GetTransactionAsync(Guid transactionId)
-    {
-        Version? transaction = await repo.VersionRepo.QueryAll().FirstOrDefaultAsync(x => x.Id == transactionId);
-        if (transaction == null) throw new NotFoundUSException();
-        
-        return transaction;
     }
 }

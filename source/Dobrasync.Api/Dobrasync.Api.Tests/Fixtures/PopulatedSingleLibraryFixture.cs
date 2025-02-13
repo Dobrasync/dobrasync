@@ -1,3 +1,4 @@
+using Dobrasync.Api.BusinessLogic.Dtos.Versions;
 using Dobrasync.Api.BusinessLogic.Services;
 using Dobrasync.Api.BusinessLogic.Services.Main.Libraries;
 using Dobrasync.Api.BusinessLogic.Services.Main.Transactions;
@@ -20,8 +21,8 @@ public class PopulatedSingleLibraryFixture : IAsyncLifetime
     public static readonly string TestFileContent = "This is the testfiles content.";
     
     public static Library CreatedLibrary = null!;
-    public static Version InitialFileVersion = null!;
-    public static Version CurrentFileVersion = null!;
+    public static VersionCreateResultDto InitialFileVersion = null!;
+    public static VersionCreateResultDto CurrentFileVersion = null!;
     
     public IServiceProvider ServiceProvider { get; }
     
