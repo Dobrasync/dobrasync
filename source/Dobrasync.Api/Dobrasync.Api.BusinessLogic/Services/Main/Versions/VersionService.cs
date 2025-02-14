@@ -171,4 +171,20 @@ public class VersionService(IRepoWrapper repo, IBlockService blockService, IMapp
         
         return version;
     }
+
+    public async Task<List<string>> GetVersionBlocksAsync(Guid id)
+    {
+        #region load version
+        // for 404
+        await GetVersionRequiredAsync(id);
+        #endregion
+        #region load
+        List<string> blockChecksums = repo.VersionRepo
+            .QueryAll()
+            .First(x => x.Id == id)
+            .Blocks.Select(x => x.Checksum).ToList();
+        #endregion
+        
+        return blockChecksums;
+    }
 }

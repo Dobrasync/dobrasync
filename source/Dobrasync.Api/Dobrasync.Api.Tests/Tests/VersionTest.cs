@@ -87,6 +87,10 @@ public class VersionTest : IClassFixture<PopulatedSingleLibraryFixture>
         }
         
         await versionService.CompleteMappedAsync(res.CreatedVersion.Id);
+
+        List<string> v1Blocks = await versionService.GetVersionBlocksAsync(res.CreatedVersion.Id);
+        Assert.Single(v1Blocks);
+        Assert.Equal(res.RequiredBlocks, v1Blocks);
         #endregion
         #region Create second version
         TestFile testFile2 = new TestFile("Data/LargeTestfile.txt", libraryFilePath);
@@ -119,5 +123,8 @@ public class VersionTest : IClassFixture<PopulatedSingleLibraryFixture>
         
         Assert.Equal(res2.CreatedVersion.Id, fileDto.CurrentVersionId);
         Assert.Equal(libraryFilePath, fileDto.Path);
+        
+        List<string> v2Blocks = await versionService.GetVersionBlocksAsync(res2.CreatedVersion.Id);
+        Assert.Equal(res2.RequiredBlocks, v2Blocks);
     }
 }
