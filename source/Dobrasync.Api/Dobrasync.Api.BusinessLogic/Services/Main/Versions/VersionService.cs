@@ -114,24 +114,28 @@ public class VersionService(IRepoWrapper repo, IBlockService blockService, IMapp
             .Select((checksum, index) => new { checksum, index })
             .ToList();
         
-        // debug
-        List<Block> allBLocks = await repo.BlockRepo.QueryAll().ToListAsync();
-        
-        List<Block> blocks = await repo.BlockRepo
+        List<Block> receivedBlocks = await repo.BlockRepo
             .QueryAll()
+            .Where(x => x.LibraryId == transaction.File.LibraryId)
             .Where(x => transaction.ExpectedBlocks.Any(b => b == x.Checksum))
             .ToListAsync();
         
-        blocks = blocks
+        receivedBlocks = receivedBlocks
             .OrderBy(x => expectedBLockIndices.FindIndex(
                 ci => ci.checksum.SequenceEqual(x.Checksum)))
             .ToList();
             
         #region verify block order
+
+        if (transaction.ExpectedBlocks.Count != receivedBlocks.Count)
+        {
+            throw new BlockMismatchUSException();
+        }
+        
         for (int i = 0; i < transaction.ExpectedBlocks.Count(); i++)
         {
             string expectedBlock = transaction.ExpectedBlocks[i];
-            string actualBlock = blocks[i].Checksum;
+            string actualBlock = receivedBlocks[i].Checksum;
 
             if (actualBlock != expectedBlock)
             {
@@ -140,7 +144,7 @@ public class VersionService(IRepoWrapper repo, IBlockService blockService, IMapp
         }
         #endregion
         
-        transaction.Blocks = blocks;
+        transaction.Blocks = receivedBlocks;
         await repo.VersionRepo.UpdateAsync(transaction);
         
         return transaction;

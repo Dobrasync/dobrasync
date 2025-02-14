@@ -7,6 +7,7 @@ using Dobrasync.Api.BusinessLogic.Services.Main.Files;
 using Dobrasync.Api.BusinessLogic.Services.Main.Libraries;
 using Dobrasync.Api.BusinessLogic.Services.Main.Transactions;
 using Dobrasync.Api.Database.Repos;
+using Dobrasync.Api.Shared.Exceptions.Userspace;
 using Dobrasync.Api.Tests.Fixtures;
 using Dobrasync.Api.Tests.Util;
 using Dobrasync.Common.Util;
@@ -126,5 +127,44 @@ public class VersionTest : IClassFixture<PopulatedSingleLibraryFixture>
         
         List<string> v2Blocks = await versionService.GetVersionBlocksAsync(res2.CreatedVersion.Id);
         Assert.Equal(res2.RequiredBlocks, v2Blocks);
+    }
+
+    [Fact]
+    public async Task CreateVersionMissingBlocksTest()
+    {
+        string libraryFilePath = "CreateVersionMissingBlocksTest/File.txt";
+        Guid targetLibraryId = PopulatedSingleLibraryFixture.CreatedLibrary.Id;
+        TestFile testFile = new TestFile("Data/LargeTestfile.txt", libraryFilePath);
+        
+        #region Create
+        VersionCreateResultDto res = await versionService.CreateVersionMappedAsync(new()
+        {
+            FileChecksum = testFile.Checksum,
+            FilePath = testFile.Path,
+            ExpectedBlocks = testFile.Blocks.Select(ChecksumUtil.CalculateFileChecksum).ToList(),
+            IsDirectory = false,
+            LibraryId = targetLibraryId,
+            FilePermissionsOctal = 0,
+            FileCreatedOnUtc = testFile.FileInfo.CreationTimeUtc,
+            FileModifiedOnUtc = testFile.FileInfo.LastWriteTimeUtc, 
+        });
+
+        for (int i = 0; i < res.RequiredBlocks.Count; i++)
+        {
+            // simulate missing the last block
+            if (i==res.RequiredBlocks.Count-2) break;
+            
+            string requriedBlock = res.RequiredBlocks[i];
+            byte[] blockMatch = testFile.Blocks.Find(x =>
+                ChecksumUtil.CalculateBlockChecksum(x) == requriedBlock)!;
+
+            await blockService.CreateBlockAsync(blockMatch, ChecksumUtil.CalculateBlockChecksum(blockMatch), targetLibraryId);
+        }
+        #endregion
+
+        await Assert.ThrowsAsync<BlockMismatchUSException>(async () =>
+        {
+            await versionService.CompleteMappedAsync(res.CreatedVersion.Id);
+        });
     }
 }
