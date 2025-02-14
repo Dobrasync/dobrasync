@@ -3,7 +3,7 @@
   "defaultVariables": null,
   "documentGenerator": {
     "fromDocument": {
-      "url": "http://localhost:5000/swagger/v1/swagger.json"
+      "url": "http://localhost:5178/swagger/v1/swagger.json"
     }
   },
   "codeGenerators": {
@@ -15,9 +15,9 @@
       "injectHttpClient": true,
       "disposeHttpClient": false,
       "operationGenerationMode": "MultipleClientsFromOperationId",
-      "output": "./Mainline/ApiClient.cs",
+      "output": "./ApiClient.cs",
       "className": "ApiClient",
-      "namespace": "Dobrasync.Core.Client.ApiGen.Mainline"
+      "namespace": "Dobrasync.Common.Clients.Api"
     }
   }
 }

@@ -6,7 +6,7 @@ namespace Dobrasync.Api.Api.Middleware;
 
 public class ExceptionInterceptorMiddleware(RequestDelegate next)
 {
-    public async Task InvokeAsync(HttpContext httpContext, ILoggerService logger)
+    public async Task InvokeAsync(HttpContext httpContext)
     {
         try
         {
@@ -15,17 +15,17 @@ public class ExceptionInterceptorMiddleware(RequestDelegate next)
         }
         catch (Exception ex)
         {
-            await WriteResponse(ex, httpContext, logger);
+            await WriteResponse(ex, httpContext);
         }
     }
 
-    public async Task WriteResponse(Exception ex, HttpContext context, ILoggerService logger)
+    public async Task WriteResponse(Exception ex, HttpContext context)
     {
         ApiErrorDto? errorDto = null;
         if (ex is UserspaceException userspaceException)
         {
             errorDto = GetApiErrorDto(userspaceException);
-            logger.LogDebug($"Userspace error during request: {ex.StackTrace}");
+            //logger.LogDebug($"Userspace error during request: {ex.StackTrace}");
         }
         else
         {
@@ -34,7 +34,7 @@ public class ExceptionInterceptorMiddleware(RequestDelegate next)
                 HttpStatusCode = 500,
                 Message = "Internal server error",
             };
-            logger.LogError($"Internal error during request: {ex.StackTrace}");
+            //logger.LogError($"Internal error during request: {ex.StackTrace}");
         }
 
         context.Response.StatusCode = errorDto.HttpStatusCode;

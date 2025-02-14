@@ -7,11 +7,14 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.13" />
+      <Folder Include="Services\Repo\" />
     </ItemGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\Dobrasync.Common.Clients.Api\Dobrasync.Common.Clients.Api.csproj" />
+      <ProjectReference Include="..\Dobrasync.Common.Clients.Database\Dobrasync.Common.Clients.Database.csproj" />
       <ProjectReference Include="..\Dobrasync.Common.Clients.Shared\Dobrasync.Common.Clients.Shared.csproj" />
+      <ProjectReference Include="..\Dobrasync.Common.Util\Dobrasync.Common.Util.csproj" />
     </ItemGroup>
 
 </Project>
