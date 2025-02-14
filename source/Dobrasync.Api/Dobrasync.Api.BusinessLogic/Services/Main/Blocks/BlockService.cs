@@ -75,7 +75,8 @@ public class BlockService(IRepoWrapper repo, IAppsettingsProviderService asp, IL
         #region Create in DB
         Block block = new()
         {
-            Checksum = checksum
+            Checksum = checksum,
+            LibraryId = library.Id,
         };
         await repo.BlockRepo.InsertAsync(block);
         #endregion

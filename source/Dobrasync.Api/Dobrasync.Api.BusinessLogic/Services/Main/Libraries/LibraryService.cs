@@ -135,7 +135,11 @@ public class LibraryService(IRepoWrapper repo, IMapper mapper, IAccessControlSer
 
         FileDto fileDto = mapper.Map<FileDto>(file);
         
-        fileDto.CurrentVersionId = file.Versions.OrderByDescending(x => x.CreatedUtc).First().Id;
+        fileDto.CurrentVersionId = file.Versions
+            .Where(x => x.Status == EVersionStatus.Success)
+            .OrderByDescending(x => x.CreatedUtc)
+            .First()
+            .Id;
         
         return fileDto;
     }

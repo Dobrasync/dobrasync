@@ -47,7 +47,8 @@ public class VersionService(IRepoWrapper repo, IBlockService blockService, IMapp
             .Include(x => x.Library)
             .Where(x => x.Library.Id == createDto.LibraryId)
             .FirstOrDefaultAsync(x => x.Path == createDto.FilePath);
-
+        
+        bool initialVersion = targetFile == null;
         if (targetFile == null)
         {
             targetFile = await CreateNewFile(library, createDto.FilePath);
@@ -64,6 +65,7 @@ public class VersionService(IRepoWrapper repo, IBlockService blockService, IMapp
             FileChecksum = createDto.FileChecksum,
             FilePermissionsOctal = createDto.FilePermissionsOctal,
             File = targetFile,
+            Status = initialVersion ? EVersionStatus.Success : EVersionStatus.Pending,
         };
 
         #region Determine required blocks
@@ -145,6 +147,7 @@ public class VersionService(IRepoWrapper repo, IBlockService blockService, IMapp
         #endregion
         
         transaction.Blocks = receivedBlocks;
+        transaction.Status = EVersionStatus.Success;
         await repo.VersionRepo.UpdateAsync(transaction);
         
         return transaction;
