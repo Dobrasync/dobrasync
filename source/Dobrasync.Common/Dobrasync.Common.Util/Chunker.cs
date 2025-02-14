@@ -2,13 +2,13 @@ namespace Dobrasync.Common.Util;
 
 public class Chunker
 {
-    private static readonly int _blockSize = 1024;
+    private static readonly int _blockSize = 1024000;
     
     public static List<byte[]> ContentToBlocks(byte[] originalContent)
     {
         List<byte[]> blocks = new();
         
-        for (int i = 0; i < originalContent.Length; i += 1024)
+        for (int i = 0; i < originalContent.Length; i += _blockSize)
         {
             int remainingLength = originalContent.Length - i;
             int currentBlockSize = Math.Min(_blockSize, remainingLength);

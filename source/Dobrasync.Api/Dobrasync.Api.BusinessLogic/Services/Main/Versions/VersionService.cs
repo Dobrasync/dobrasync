@@ -70,6 +70,7 @@ public class VersionService(IRepoWrapper repo, IBlockService blockService, IMapp
         List<Block> blocksAlreadyOnRemote =
             await repo.BlockRepo
                 .QueryAll()
+                .Where(x => x.LibraryId == createDto.LibraryId)
                 .Where(x => createDto.ExpectedBlocks
                     .Any(b => b.Equals(x.Checksum)))
                 .ToListAsync();

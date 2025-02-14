@@ -1,5 +1,6 @@
 using Dobrasync.Api.BusinessLogic.Dtos.Versions;
 using Dobrasync.Api.BusinessLogic.Services;
+using Dobrasync.Api.BusinessLogic.Services.Core.AppsettingsProvider;
 using Dobrasync.Api.BusinessLogic.Services.Main.Libraries;
 using Dobrasync.Api.BusinessLogic.Services.Main.Transactions;
 using Dobrasync.Api.Database.Entities;
@@ -54,6 +55,9 @@ public class PopulatedSingleLibraryFixture : IAsyncLifetime
 
     public Task DisposeAsync()
     {
+        IAppsettingsProviderService apps = ServiceProvider.GetRequiredService<IAppsettingsProviderService>();
+        Directory.Delete(apps.GetAppsettings().Storage.DataDirectory, true);
+        
         return Task.CompletedTask;
     }
 }

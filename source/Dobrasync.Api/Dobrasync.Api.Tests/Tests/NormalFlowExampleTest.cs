@@ -52,9 +52,10 @@ public class NormalFlowExampleTest : IClassFixture<PopulatedSingleLibraryFixture
         Assert.Empty(initialDiff);
         #endregion
         #region Make diff with first file on client
-
-        FileInfo sourceFileInfo = new FileInfo("Data/Testfile.txt");
-        byte[] sourceFileBytes = File.ReadAllBytes("Data/Testfile.txt");
+        Guid? sourceFileVersion = null;
+        string sourceFilePath = "Data/Testfile.txt";
+        FileInfo sourceFileInfo = new FileInfo(sourceFilePath);
+        byte[] sourceFileBytes = File.ReadAllBytes(sourceFilePath);
         string sourceFileChecksum = ChecksumUtil.CalculateFileChecksum(sourceFileBytes);
         List<byte[]> sourceFileBlocks = Chunker.ContentToBlocks(sourceFileBytes);
         
@@ -63,9 +64,9 @@ public class NormalFlowExampleTest : IClassFixture<PopulatedSingleLibraryFixture
             FilesOnLocal = [
                 new()
                 {
-                    Path = "level-one/level-two/Testfile.txt",
+                    Path = sourceFilePath,
                     FileChecksum = sourceFileChecksum,
-                    LatestVersionId = null
+                    LatestVersionId = sourceFileVersion,
                 }
             ]
         }); 
@@ -93,7 +94,9 @@ public class NormalFlowExampleTest : IClassFixture<PopulatedSingleLibraryFixture
                     FileCreatedOnUtc = sourceFileInfo.CreationTimeUtc,
                     LibraryId = libraryDto.Id,
                 });
-
+                
+                sourceFileVersion = createdResult.CreatedVersion.Id;
+                
                 foreach (string requiredBlockChecksum in createdResult.RequiredBlocks)
                 {
                     byte[]? blockContentMatch = sourceFileBlocks.Find(b => ChecksumUtil.CalculateBlockChecksum(b).SequenceEqual(requiredBlockChecksum));
@@ -110,10 +113,18 @@ public class NormalFlowExampleTest : IClassFixture<PopulatedSingleLibraryFixture
         }
         #endregion
         
-        
-        await libraryService.MakeDiffMappedAsync(PopulatedSingleLibraryFixture.CreatedLibrary.Id, new()
+        #region Make diff where we expect no difference
+        List<string> noDiffExpected = await libraryService.MakeDiffMappedAsync(libraryDto.Id, new()
         {
-            FilesOnLocal = []
+            FilesOnLocal = [new()
+            {
+                Path = sourceFilePath,
+                FileChecksum = sourceFileChecksum,
+                LatestVersionId = sourceFileVersion,
+            }]
         });
+        
+        Assert.Empty(noDiffExpected);
+        #endregion
     }
 }

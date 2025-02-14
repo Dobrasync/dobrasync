@@ -63,6 +63,7 @@ public class BlockService(IRepoWrapper repo, IAppsettingsProviderService asp, IL
         #region Abort if exists
         Block? existingBlock = await repo.BlockRepo
             .QueryAll()
+            .Where(x => x.LibraryId == libraryId)
             .FirstOrDefaultAsync(x => x.Checksum == checksum);
         
         if (existingBlock != null) return existingBlock;

@@ -124,9 +124,20 @@ public class LibraryService(IRepoWrapper repo, IMapper mapper, IAccessControlSer
 
     public async Task<FileDto> GetLibraryFileMappedAsync(Guid libraryId, string path)
     {
-        File file = await GetLibraryFileAsync(libraryId, path);
+        #region Load
+        File? file = await repo.FileRepo.QueryAll()
+            .Include(x => x.Library)
+            .Include(x => x.Versions)
+            .FirstOrDefaultAsync(x => x.Library.Id == libraryId && x.Path == path);
+        
+        if (file == null) throw new NotFoundUSException();
+        #endregion
 
-        return mapper.Map<FileDto>(file);
+        FileDto fileDto = mapper.Map<FileDto>(file);
+        
+        fileDto.CurrentVersionId = file.Versions.OrderByDescending(x => x.CreatedUtc).First().Id;
+        
+        return fileDto;
     }
 
     public async Task<List<string>> MakeDiffMappedAsync(Guid libraryId, DiffCreateDto diffCreateDto)
