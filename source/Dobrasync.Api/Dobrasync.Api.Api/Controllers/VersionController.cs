@@ -22,6 +22,17 @@ public class VersionController(IVersionService versionService) : BaseController
         return Ok(v);
     }
     
+    [HttpGet("{versionId}/blocks")]
+    [SwaggerOperation(
+        OperationId = nameof(GetVersionBlocksAsync)
+    )]
+    public async Task<ActionResult<List<string>>> GetVersionBlocksAsync(Guid versionId)
+    {
+        List<string> v = await versionService.GetVersionBlocksAsync(versionId);
+        
+        return Ok(v);
+    }
+    
     [HttpPost]
     [SwaggerOperation(
         OperationId = nameof(CreateVersionAsync)

@@ -146,7 +146,12 @@ public class VersionService(IRepoWrapper repo, IBlockService blockService, IMapp
         }
         #endregion
         
-        transaction.Blocks = receivedBlocks;
+        transaction.OrderedBlocks = receivedBlocks.Select((x,i) => new OrderedBlock()
+        {
+            OrderIndex = i,
+            Version = transaction,
+            Block = x,
+        }).ToList();
         transaction.Status = EVersionStatus.Success;
         await repo.VersionRepo.UpdateAsync(transaction);
         
@@ -163,7 +168,8 @@ public class VersionService(IRepoWrapper repo, IBlockService blockService, IMapp
         #region load
         Version? version = repo.VersionRepo
             .QueryAll()
-            .Include(x => x.Blocks)
+            .Include(x => x.OrderedBlocks)
+            .ThenInclude(x => x.Block)
             .FirstOrDefault(x => x.Id == versionId);
 
         if (version == null) throw new NotFoundUSException();
@@ -171,9 +177,9 @@ public class VersionService(IRepoWrapper repo, IBlockService blockService, IMapp
         
         await repo.VersionRepo.DeleteAsync(version);
 
-        foreach (Block block in version.Blocks)
+        foreach (OrderedBlock orderedBlock in version.OrderedBlocks)
         {
-            await blockService.TryDeleteOrphanBlockAsync(block.Id);
+            await blockService.TryDeleteOrphanBlockAsync(orderedBlock.Block.Id);
         }
         
         return version;
@@ -188,8 +194,10 @@ public class VersionService(IRepoWrapper repo, IBlockService blockService, IMapp
         #region load
         List<string> blockChecksums = repo.VersionRepo
             .QueryAll()
+            .Include(x => x.OrderedBlocks)
+            .ThenInclude(x => x.Block)
             .First(x => x.Id == id)
-            .Blocks.Select(x => x.Checksum).ToList();
+            .OrderedBlocks.Select(x => x.Block.Checksum).ToList();
         #endregion
         
         return blockChecksums;

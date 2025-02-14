@@ -30,5 +30,5 @@ public class AppsettingsAS
     /// Development options.
     /// </summary>
     [Required]
-    public DevAS Dev { get; set; } = null!;
+    public DevAS Dev { get; set; } = new();
 }
