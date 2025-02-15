@@ -30,11 +30,24 @@ public class LibraryService(IApiClient api, IRepoWrapper repo) : ILibraryService
 
         if (library == null) return;
         
-        List<FileInfo> filesWithinLib = await CreateAndUpdateLocalLibraryFileTree(library.Id);
+        FileTreeBuildResult tree = await CreateAndUpdateLocalLibraryFileTree(library.Id);
         
+        #region Get diff
+        ICollection<string> diff = await api.MakeLibraryDiffAsync(id, new()
+        {
+            FilesOnLocal = tree.FilesAll.Select(x => new DiffFileDescriptionDto()
+            {
+                Path = x.Path,
+                FileChecksum = ChecksumUtil.CalculateFileChecksum(
+                    System.IO.File.ReadAllBytes(tree.FilesInfo.Find(fi => Path.GetRelativePath(library.Path, fi.FullName) == x.Path)!.FullName)
+                ),
+                LatestVersionId = x.Versions.OrderByDescending(v => v.CreatedUtc).ToList().First().RemoteId,
+            }).ToList()
+        });
+        #endregion
     }
 
-    private async Task<List<FileInfo>> CreateAndUpdateLocalLibraryFileTree(Guid libraryId)
+    private async Task<FileTreeBuildResult> CreateAndUpdateLocalLibraryFileTree(Guid libraryId)
     {
         Library library = await repo.LibraryRepo
             .QueryAll()
@@ -53,7 +66,7 @@ public class LibraryService(IApiClient api, IRepoWrapper repo) : ILibraryService
             }
         }
         
-        return files;
+        return await UpdateLibraryFileTree(libraryId, files);
     }
 
     private async Task<FileTreeBuildResult> UpdateLibraryFileTree(Guid libraryId, List<FileInfo> fileInfoList)
