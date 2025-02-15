@@ -7,14 +7,21 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <Folder Include="Services\Repo\" />
-    </ItemGroup>
-
-    <ItemGroup>
       <ProjectReference Include="..\Dobrasync.Common.Clients.Api\Dobrasync.Common.Clients.Api.csproj" />
       <ProjectReference Include="..\Dobrasync.Common.Clients.Database\Dobrasync.Common.Clients.Database.csproj" />
       <ProjectReference Include="..\Dobrasync.Common.Clients.Shared\Dobrasync.Common.Clients.Shared.csproj" />
       <ProjectReference Include="..\Dobrasync.Common.Util\Dobrasync.Common.Util.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Content Include="obj\Dobrasync.Common.Clients.BusinessLogic.csproj.nuget.dgspec.json" />
+      <Content Include="obj\Dobrasync.Common.Clients.BusinessLogic.csproj.nuget.g.props" />
+      <Content Include="obj\Dobrasync.Common.Clients.BusinessLogic.csproj.nuget.g.targets" />
+      <Content Include="obj\project.assets.json" />
+      <Content Include="obj\project.nuget.cache" />
+      <Content Include="obj\project.packagespec.json" />
+      <Content Include="obj\rider.project.model.nuget.info" />
+      <Content Include="obj\rider.project.restore.info" />
     </ItemGroup>
 
 </Project>
