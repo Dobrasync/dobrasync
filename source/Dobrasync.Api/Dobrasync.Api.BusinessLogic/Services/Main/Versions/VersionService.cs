@@ -202,4 +202,20 @@ public class VersionService(IRepoWrapper repo, IBlockService blockService, IMapp
         
         return blockChecksums;
     }
+
+    public async Task<List<Version>> GetFileVersionsNewerThanDateAsync(Guid fileId, DateTimeOffset dateUtc)
+    {
+        List<Version> newerVersions = await repo.VersionRepo
+            .QueryAll()
+            .Where(x => x.FileId == fileId)
+            .Where(x => x.CreatedUtc > dateUtc)
+            .ToListAsync();
+        
+        return newerVersions;
+    }
+    
+    public async Task<List<VersionDto>> GetFileVersionsNewerThanDateMappedAsync(Guid fileId, DateTimeOffset dateUtc)
+    {
+        return mapper.Map<List<VersionDto>>(await GetFileVersionsNewerThanDateAsync(fileId, dateUtc));
+    }
 }

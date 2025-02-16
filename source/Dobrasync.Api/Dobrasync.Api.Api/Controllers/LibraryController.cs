@@ -11,6 +11,17 @@ namespace Dobrasync.Api.Api.Controllers;
 [SwaggerTag("Library")]
 public class LibraryController(ILibraryService libraryService) : BaseController
 {
+    [HttpPost]
+    [SwaggerOperation(
+        OperationId = nameof(CreateLibraryAsync)
+    )]
+    public async Task<ActionResult<LibraryDto>> CreateLibraryAsync([FromBody] LibraryCreateDto dto)
+    {
+        LibraryDto res = await libraryService.CreateLibraryMappedAsync(dto.Name);
+
+        return Ok(res);
+    }
+    
     [HttpGet("{libraryId}")]
     [SwaggerOperation(
         OperationId = nameof(GetLibraryByIdAsync)

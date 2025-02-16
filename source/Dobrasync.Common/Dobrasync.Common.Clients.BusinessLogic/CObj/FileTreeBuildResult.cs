@@ -1,3 +1,6 @@
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 using File = Dobrasync.Common.Clients.Database.DB.Entities.File;
 
 namespace Dobrasync.Common.Clients.BusinessLogic.CObj;

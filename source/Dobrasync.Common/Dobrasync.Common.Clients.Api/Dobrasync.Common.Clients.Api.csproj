@@ -19,7 +19,8 @@
         </PackageReference>
     </ItemGroup>
 
-    <Target Name="NSwag" AfterTargets="PostBuildEvent" Condition="false">
+    <!-- Set Condition to true if you want to rebuild API client from openapi spec -->
+    <Target Name="NSwag" AfterTargets="PostBuildEvent" Condition="true">
         <Exec WorkingDirectory="$(ProjectDir)" EnvironmentVariables="ASPNETCORE_ENVIRONMENT=Development" Command="$(NSwagExe_Net80) run nswag.json /variables:Configuration=$(Configuration)"/>
     </Target>
 

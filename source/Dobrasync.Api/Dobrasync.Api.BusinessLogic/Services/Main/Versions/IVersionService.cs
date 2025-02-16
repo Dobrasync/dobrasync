@@ -15,4 +15,6 @@ public interface IVersionService
     public Task<VersionDto> CompleteMappedAsync(Guid transactionId);
     public Task<Version> DeleteVersionAsync(Guid versionId);
     public Task<List<string>> GetVersionBlocksAsync(Guid id);
+    public Task<List<Version>> GetFileVersionsNewerThanDateAsync(Guid fileId, DateTimeOffset dateUtc);
+    public Task<List<VersionDto>> GetFileVersionsNewerThanDateMappedAsync(Guid fileId, DateTimeOffset dateUtc);
 }
