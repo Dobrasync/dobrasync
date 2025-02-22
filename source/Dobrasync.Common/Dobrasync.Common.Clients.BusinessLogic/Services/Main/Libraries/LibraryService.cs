@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Dobrasync.Common.Clients.Api;
 using Dobrasync.Common.Clients.BusinessLogic.CObj;
+using Dobrasync.Common.Clients.BusinessLogic.CObj.Progress.LibDelete;
 using Dobrasync.Common.Clients.Database.DB.Entities;
 using Dobrasync.Common.Clients.Database.Repos;
 using Dobrasync.Common.Util;
@@ -38,7 +39,7 @@ public class LibraryService(IApiClient api, IRepoWrapper repo) : ILibraryService
         return created;
     }
 
-    public async Task<SyncResult> SyncLibraryAsync(IProgress<SyncProgressUpdateBase> progress, CancellationToken cancellationToken, Guid libraryId)
+    public async Task<SyncResult> SyncLibraryAsync(Guid libraryId, IProgress<SyncProgressUpdateBase> progress, CancellationToken cancellationToken)
     {
         #region Load library
         Library? library = await repo.LibraryRepo
@@ -369,5 +370,17 @@ public class LibraryService(IApiClient api, IRepoWrapper repo) : ILibraryService
         Directory.CreateDirectory(path);
 
         return newLibrary;
+    }
+
+    public async Task<DeleteLibraryResult> DeleteLibraryAsync(Guid remoteId, IProgress<LibDeletePRBase> progress, CancellationToken cancellationToken)
+    {
+        #region load
+        await api.DeleteLibraryByIdAsync(remoteId);
+        #endregion
+
+        return new()
+        {
+            Deleted = true
+        };
     }
 }
