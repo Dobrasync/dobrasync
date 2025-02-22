@@ -13,6 +13,7 @@ public class DobrasyncContext(DbContextOptions<DobrasyncContext> options) : DbCo
     public virtual DbSet<File> File { get; set; }
     public virtual DbSet<Library> Library { get; set; }
     public virtual DbSet<User> User { get; set; }
+    public virtual DbSet<OrderedBlock> OrderedBlock { get; set; }
 
     protected override void OnModelCreating(ModelBuilder builder)
     {

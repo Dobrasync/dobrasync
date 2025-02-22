@@ -13,4 +13,5 @@ public interface IRepoWrapper
     IRepo<File> FileRepo { get; }
     IRepo<Version> VersionRepo { get; }
     IRepo<Client> ClientRepo { get; }
+    IRepo<OrderedBlock> OrderedBlockRepo { get; }
 }

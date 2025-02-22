@@ -60,16 +60,27 @@ public class LibraryService(IApiClient api, IRepoWrapper repo) : ILibraryService
         #endregion
         #region Get diff
         progress.Report(new SyncPUFetchingDiff());
+
+        List<DiffFileDescriptionDto> fileDescs = new();
+        foreach (var file in tree.FilesAll)
+        {
+            string fileSysPath = Path.Join(library.Path, file.Path);
+            byte[] fileBytes = await System.IO.File.ReadAllBytesAsync(fileSysPath);
+            string fileCheck = ChecksumUtil.CalculateFileChecksum(fileBytes);
+            Guid? latestVersionId = file.Versions.OrderByDescending(v => v.CreatedUtc).ToList().FirstOrDefault()?.RemoteId;
+            
+            DiffFileDescriptionDto newFileDesc = new()
+            {
+                Path = file.Path,
+                FileChecksum = fileCheck,
+                LatestVersionId = latestVersionId,
+            };
+            fileDescs.Add(newFileDesc);
+        }
+        
         ICollection<string> diff = await api.MakeLibraryDiffAsync(library.RemoteId, new()
         {
-            FilesOnLocal = tree.FilesAll.Select(x => new DiffFileDescriptionDto()
-            {
-                Path = x.Path,
-                FileChecksum = ChecksumUtil.CalculateFileChecksum(
-                    System.IO.File.ReadAllBytes(tree.FilesInfo.Find(fi => Path.GetRelativePath(library.Path, fi.FullName) == x.Path)!.FullName)
-                ),
-                LatestVersionId = x.Versions.OrderByDescending(v => v.CreatedUtc).ToList().First().RemoteId,
-            }).ToList()
+            FilesOnLocal = fileDescs,
         });
         #endregion
         
@@ -213,7 +224,7 @@ public class LibraryService(IApiClient api, IRepoWrapper repo) : ILibraryService
             VersionCreateResultDto newVersion = await api.CreateVersionAsync(new()
             {
                 FileChecksum = fileChecksum,
-                LibraryId = library.Id,
+                LibraryId = library.RemoteId,
                 ExpectedBlocks = allBlocks.Select(x => ChecksumUtil.CalculateFileChecksum(x)).ToList(),
                 FilePath = file.Path,
                 IsDirectory = (fileInfo.Attributes & FileAttributes.Directory) == FileAttributes.Directory,
@@ -302,6 +313,7 @@ public class LibraryService(IApiClient api, IRepoWrapper repo) : ILibraryService
 
             File? trackedFile = await repo.FileRepo
                 .QueryAll()
+                .Where(x => x.LibraryId == library.Id)
                 .Include(x => x.Versions)
                 .FirstOrDefaultAsync(x => x.Path == filePathInLibrary);
 
@@ -310,7 +322,9 @@ public class LibraryService(IApiClient api, IRepoWrapper repo) : ILibraryService
                 trackedFile = new File()
                 {
                     Path = filePathInLibrary,
+                    LibraryId = library.Id,
                 };
+                await repo.FileRepo.InsertAsync(trackedFile);
                 newFiles.Add(trackedFile);
                 continue;
             }

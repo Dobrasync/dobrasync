@@ -15,7 +15,11 @@ public class VersionService(IRepoWrapper repo, IBlockService blockService, IMapp
 {
     public async Task<Version> GetVersionRequiredAsync(Guid id)
     {
-        Version? version = await repo.VersionRepo.QueryAll().FirstOrDefaultAsync(x => x.Id == id);
+        Version? version = await repo.VersionRepo
+            .QueryAll()
+            .Include(x => x.File)
+            .FirstOrDefaultAsync(x => x.Id == id);
+        
         if (version == null)
         {
             throw new NotFoundUSException();
@@ -108,18 +112,18 @@ public class VersionService(IRepoWrapper repo, IBlockService blockService, IMapp
         return newFile;
     }
 
-    public async Task<Version> CompleteAsync(Guid transactionId)
+    public async Task<Version> CompleteAsync(Guid versionId)
     {
-        Version? transaction = await GetVersionRequiredAsync(transactionId);
+        Version? version = await GetVersionRequiredAsync(versionId);
         
-        var expectedBLockIndices = transaction.ExpectedBlocks
+        var expectedBLockIndices = version.ExpectedBlocks
             .Select((checksum, index) => new { checksum, index })
             .ToList();
         
         List<Block> receivedBlocks = await repo.BlockRepo
             .QueryAll()
-            .Where(x => x.LibraryId == transaction.File.LibraryId)
-            .Where(x => transaction.ExpectedBlocks.Any(b => b == x.Checksum))
+            .Where(x => x.LibraryId == version.File.LibraryId)
+            .Where(x => version.ExpectedBlocks.Any(b => b == x.Checksum))
             .ToListAsync();
         
         receivedBlocks = receivedBlocks
@@ -129,14 +133,14 @@ public class VersionService(IRepoWrapper repo, IBlockService blockService, IMapp
             
         #region verify block order
 
-        if (transaction.ExpectedBlocks.Count != receivedBlocks.Count)
+        if (version.ExpectedBlocks.Count != receivedBlocks.Count)
         {
             throw new BlockMismatchUSException();
         }
         
-        for (int i = 0; i < transaction.ExpectedBlocks.Count(); i++)
+        for (int i = 0; i < version.ExpectedBlocks.Count(); i++)
         {
-            string expectedBlock = transaction.ExpectedBlocks[i];
+            string expectedBlock = version.ExpectedBlocks[i];
             string actualBlock = receivedBlocks[i].Checksum;
 
             if (actualBlock != expectedBlock)
@@ -146,16 +150,19 @@ public class VersionService(IRepoWrapper repo, IBlockService blockService, IMapp
         }
         #endregion
         
-        transaction.OrderedBlocks = receivedBlocks.Select((x,i) => new OrderedBlock()
+        version.OrderedBlocks = receivedBlocks.Select((x,i) => new OrderedBlock()
         {
             OrderIndex = i,
-            Version = transaction,
+            Version = version,
             Block = x,
         }).ToList();
-        transaction.Status = EVersionStatus.Success;
-        await repo.VersionRepo.UpdateAsync(transaction);
         
-        return transaction;
+        await repo.OrderedBlockRepo.InsertRangeAsync(version.OrderedBlocks);
+        
+        version.Status = EVersionStatus.Success;
+        await repo.VersionRepo.UpdateAsync(version);
+        
+        return version;
     }
 
     public async Task<VersionDto> CompleteMappedAsync(Guid transactionId)

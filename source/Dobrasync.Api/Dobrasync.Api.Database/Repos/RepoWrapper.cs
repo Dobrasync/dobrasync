@@ -13,6 +13,7 @@ public class RepoWrapper(DobrasyncContext context, IHttpContextAccessor hca) : I
     private IRepo<Library> _libraryRepo = null!;
     private IRepo<Client> _clientRepo = null!;
     private IRepo<Version> _transactionRepo = null!;
+    private IRepo<OrderedBlock> _orderedBlockRepo = null!;
 
     public DobrasyncContext DbContext => context;
 
@@ -40,6 +41,11 @@ public class RepoWrapper(DobrasyncContext context, IHttpContextAccessor hca) : I
     public IRepo<Client> ClientRepo
     {
         get { return _clientRepo ??= new Repo<Client>(context, hca); }
+    }
+    
+    public IRepo<OrderedBlock> OrderedBlockRepo
+    {
+        get { return _orderedBlockRepo ??= new Repo<OrderedBlock>(context, hca); }
     }
     #endregion
 }

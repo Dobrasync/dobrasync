@@ -11,7 +11,7 @@ public interface IVersionService
     public Task<VersionDto> GetVersionRequiredMappedAsync(Guid id);
     public Task<VersionCreateResultDto> CreateVersionAsync(VersionCreateDto createDto);
     public Task<VersionCreateResultDto> CreateVersionMappedAsync(VersionCreateDto createDto);
-    public Task<Version> CompleteAsync(Guid transactionId);
+    public Task<Version> CompleteAsync(Guid versionId);
     public Task<VersionDto> CompleteMappedAsync(Guid transactionId);
     public Task<Version> DeleteVersionAsync(Guid versionId);
     public Task<List<string>> GetVersionBlocksAsync(Guid id);
