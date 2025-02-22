@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+
 namespace Dobrasync.Common.Clients.BusinessLogic.CObj;
 
 public class SyncResult

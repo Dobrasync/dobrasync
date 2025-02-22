@@ -1,3 +1,5 @@
+using AutoMapper;
+using Dobrasync.Api.BusinessLogic.Dtos;
 using Dobrasync.Api.BusinessLogic.Services.Core.AppsettingsProvider;
 using Dobrasync.Api.BusinessLogic.Services.Main.Libraries;
 using Dobrasync.Api.Database.Entities;
@@ -10,7 +12,7 @@ using File = System.IO.File;
 
 namespace Dobrasync.Api.BusinessLogic.Services.Main.Blocks;
 
-public class BlockService(IRepoWrapper repo, IAppsettingsProviderService asp, ILibraryService libraryService) : IBlockService
+public class BlockService(IRepoWrapper repo, IAppsettingsProviderService asp, ILibraryService libraryService, IMapper mapper) : IBlockService
 {
     public async Task<Block?> TryDeleteOrphanBlockAsync(Guid blockId)
     {
@@ -82,5 +84,21 @@ public class BlockService(IRepoWrapper repo, IAppsettingsProviderService asp, IL
         #endregion
         
         return block;
+    }
+
+    public async Task<Block> GetBlockAsync(Guid libraryId, string checksum)
+    {
+        Block? block = await repo.BlockRepo.QueryAll()
+            .Where(x => x.LibraryId == libraryId)
+            .FirstOrDefaultAsync(x => x.Checksum == checksum);
+        
+        if (block == null) throw new NotFoundUSException();
+        
+        return block;
+    }
+
+    public async Task<BlockDto> GetBlockMappedAsync(Guid libraryId, string checksum)
+    {
+        return mapper.Map<BlockDto>(await GetBlockAsync(libraryId, checksum));
     }
 }

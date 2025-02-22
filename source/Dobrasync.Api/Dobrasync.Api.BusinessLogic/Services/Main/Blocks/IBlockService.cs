@@ -1,3 +1,4 @@
+using Dobrasync.Api.BusinessLogic.Dtos;
 using Dobrasync.Api.Database.Entities;
 
 namespace Dobrasync.Api.BusinessLogic.Services.Main.Blocks;
@@ -28,4 +29,14 @@ public interface IBlockService
     /// <param name="libraryId">Library this block belongs to</param>
     /// <returns></returns>
     public Task<Block> CreateBlockAsync(byte[] payload, string checksum, Guid libraryId);
+    
+    /// <summary>
+    /// Returns a blocks payload
+    /// </summary>
+    /// <param name="libraryId"></param>
+    /// <param name="checksum"></param>
+    /// <returns></returns>
+    public Task<Block> GetBlockAsync(Guid libraryId, string checksum);
+    
+    public Task<BlockDto> GetBlockMappedAsync(Guid libraryId, string checksum);
 }

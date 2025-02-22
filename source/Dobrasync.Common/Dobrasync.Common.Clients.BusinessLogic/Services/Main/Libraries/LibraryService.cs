@@ -8,6 +8,7 @@ using Dobrasync.Common.Clients.BusinessLogic.CObj;
 using Dobrasync.Common.Clients.Database.DB.Entities;
 using Dobrasync.Common.Clients.Database.Repos;
 using Dobrasync.Common.Util;
+using Isopoh.Cryptography.Argon2;
 using Microsoft.EntityFrameworkCore;
 using File = Dobrasync.Common.Clients.Database.DB.Entities.File;
 using Version = Dobrasync.Common.Clients.Database.DB.Entities.Version;
@@ -39,14 +40,16 @@ public class LibraryService(IApiClient api, IRepoWrapper repo) : ILibraryService
 
     public async Task SyncLibraryAsync(Guid id)
     {
+        #region Load library
         Library? library = await repo.LibraryRepo
             .QueryAll()
             .FirstOrDefaultAsync(x => x.Id == id);
 
         if (library == null) return;
-        
+        #endregion
+        #region Build file tree
         FileTreeBuildResult tree = await CreateAndUpdateLocalLibraryFileTree(library.Id);
-        
+        #endregion
         #region Get diff
         ICollection<string> diff = await api.MakeLibraryDiffAsync(id, new()
         {
@@ -61,11 +64,11 @@ public class LibraryService(IApiClient api, IRepoWrapper repo) : ILibraryService
         });
         #endregion
         
-        #region Pull/Push list
-        HashSet<string> filesToPush = new();
-        HashSet<string> filesToPull = new();
-        HashSet<string> filesUndecided = new();
-        HashSet<string> filesFailure = new();
+        #region Build Pull/Push list
+        HashSet<FileWithVersionInfo> filesToPush = new();
+        HashSet<FileWithVersionInfo> filesToPull = new();
+        HashSet<FileWithVersionInfo> filesUndecided = new();
+        HashSet<FileWithVersionInfo> filesFailure = new();
         
         foreach (string filepath in diff)
         {
@@ -78,7 +81,11 @@ public class LibraryService(IApiClient api, IRepoWrapper repo) : ILibraryService
             #region Pull - If local doesnt have match
             if (localFile == null)
             {
-                filesToPull.Add(filepath);
+                filesToPull.Add(new()
+                {
+                    Path = filepath,
+                    LatestVersion = null
+                });
                 continue;
             }
             #endregion
@@ -92,7 +99,11 @@ public class LibraryService(IApiClient api, IRepoWrapper repo) : ILibraryService
             {
                 if (apiEx.StatusCode == 404)
                 {
-                    filesToPush.Add(filepath);
+                    filesToPush.Add(new()
+                    {
+                        Path = filepath,
+                        LatestVersion = null
+                    });
                     continue;
                 }
             }
@@ -100,7 +111,11 @@ public class LibraryService(IApiClient api, IRepoWrapper repo) : ILibraryService
             #region Fail - if remote returned unknown error
             if (apiFileInfo == null)
             {
-                filesFailure.Add(filepath);
+                filesFailure.Add(new()
+                {
+                    Path = filepath,
+                    LatestVersion = null,
+                });
                 continue;
             }
             #endregion
@@ -109,7 +124,11 @@ public class LibraryService(IApiClient api, IRepoWrapper repo) : ILibraryService
             #region Pull - if local has no versions
             if (localFile.Versions.Count == 0)
             {
-                filesToPull.Add(filepath);
+                filesToPull.Add(new()
+                {
+                    Path = filepath,
+                    LatestVersion = apiFileInfo.CurrentVersionId
+                });
                 continue;
             }
             #endregion
@@ -117,12 +136,37 @@ public class LibraryService(IApiClient api, IRepoWrapper repo) : ILibraryService
             // in case of conflict, let user decide if the local version or remote version should be used
             if (latestFileVersion.Id != localFile.Versions.OrderByDescending(x => x.CreatedUtc).First().RemoteId)
             {
-                filesToPush.Add(filepath);
+                filesToPush.Add(new()
+                {
+                    Path = filepath,
+                    LatestVersion = apiFileInfo.CurrentVersionId
+                });
                 continue;
             }
 
             throw new ArgumentException("Unexpected condition");
         }
+        #endregion
+        
+        #region Pull
+        foreach (var file in filesToPull)
+        {
+            if (file.LatestVersion == null) continue;
+            
+            ICollection<string> blocks = await api.GetVersionBlocksAsync(file.LatestVersion.Value);
+            List<byte> allBytes = new();
+            foreach (var block in blocks)
+            {
+                BlockDto payload = await api.GetBlockAsync(library.RemoteId, block);
+                allBytes.AddRange(payload.Payload);
+            }
+
+            string fileSystemPath = Path.Combine(library.Path, file.Path);
+            await System.IO.File.WriteAllBytesAsync(fileSystemPath, allBytes.ToArray());
+        }
+        #endregion
+        #region Push
+        
         #endregion
     }
 
