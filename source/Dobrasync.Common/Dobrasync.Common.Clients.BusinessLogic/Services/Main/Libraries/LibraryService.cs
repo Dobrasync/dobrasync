@@ -25,7 +25,7 @@ public class LibraryService(IApiClient api, IRepoWrapper repo) : ILibraryService
         }
         
         LibraryDto remoteLibrary = await api.GetLibraryByIdAsync(remoteId);
-        Library created = await CreateLibraryLocal(remoteLibrary.Id, path);
+        Library created = await CreateLibraryLocal(remoteLibrary.Id, Path.Join(path, remoteLibrary.Name));
     }
 
     public async Task<LibraryDto> CreateLibraryAsync(string name)
@@ -38,7 +38,7 @@ public class LibraryService(IApiClient api, IRepoWrapper repo) : ILibraryService
         return created;
     }
 
-    public async Task SyncLibraryAsync(IProgress<SyncProgressUpdateBase> progress, CancellationToken cancellationToken, Guid libraryId)
+    public async Task<SyncResult> SyncLibraryAsync(IProgress<SyncProgressUpdateBase> progress, CancellationToken cancellationToken, Guid libraryId)
     {
         #region Load library
         Library? library = await repo.LibraryRepo
@@ -48,7 +48,10 @@ public class LibraryService(IApiClient api, IRepoWrapper repo) : ILibraryService
         if (library == null)
         {
             progress.Report(new SyncPUFatalLibraryNotFound());
-            return;
+            return new()
+            {
+                Fatal = true
+            };
         }
         #endregion
         #region Build file tree
@@ -57,7 +60,7 @@ public class LibraryService(IApiClient api, IRepoWrapper repo) : ILibraryService
         #endregion
         #region Get diff
         progress.Report(new SyncPUFetchingDiff());
-        ICollection<string> diff = await api.MakeLibraryDiffAsync(libraryId, new()
+        ICollection<string> diff = await api.MakeLibraryDiffAsync(library.RemoteId, new()
         {
             FilesOnLocal = tree.FilesAll.Select(x => new DiffFileDescriptionDto()
             {
@@ -155,6 +158,10 @@ public class LibraryService(IApiClient api, IRepoWrapper repo) : ILibraryService
         }
         #endregion
         
+        HashSet<string> actuallyFilesPulled = new();
+        HashSet<string> actuallyFilesPushed = new();
+        HashSet<string> actuallyFilesFailed = new();
+        
         #region Pull
         foreach (var file in filesToPull)
         {
@@ -185,6 +192,8 @@ public class LibraryService(IApiClient api, IRepoWrapper repo) : ILibraryService
                 CreatedUtc = remoteVersion.CreatedUtc,
                 IsDirectoy = remoteVersion.IsDirectory,
             });
+            
+            actuallyFilesPulled.Add(file.Path);
         }
         #endregion
         #region Push
@@ -242,10 +251,19 @@ public class LibraryService(IApiClient api, IRepoWrapper repo) : ILibraryService
                 CreatedUtc = completeVersion.CreatedUtc,
                 IsDirectoy = completeVersion.IsDirectory,
             });
+            
+            actuallyFilesPushed.Add(file.Path);
         };
         #endregion
         
         progress.Report(new SyncPUComplete());
+        return new()
+        {
+            UndecidedFiles = filesUndecided.Select(x => x.Path).ToHashSet(),
+            FailedFiles = actuallyFilesFailed,
+            PulledFiles = actuallyFilesPulled,
+            PushedFiles = actuallyFilesPushed,
+        };
     }
 
     private async Task<FileTreeBuildResult> CreateAndUpdateLocalLibraryFileTree(Guid libraryId)

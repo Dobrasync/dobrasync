@@ -9,5 +9,5 @@ public interface ILibraryService
 {
     public Task CloneLibraryAsync(Guid remoteId, string path);
     public Task<LibraryDto> CreateLibraryAsync(string name);
-    public Task SyncLibraryAsync(IProgress<SyncProgressUpdateBase> progress, CancellationToken cancellationToken, Guid libraryId);
+    public Task<SyncResult> SyncLibraryAsync(IProgress<SyncProgressUpdateBase> progress, CancellationToken cancellationToken, Guid libraryId);
 }
