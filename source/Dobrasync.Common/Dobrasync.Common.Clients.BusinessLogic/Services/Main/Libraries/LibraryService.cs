@@ -158,6 +158,7 @@ public class LibraryService(IApiClient api, IRepoWrapper repo) : ILibraryService
         #region Pull
         foreach (var file in filesToPull)
         {
+            VersionDto remoteVersion = await api.GetVersionRequiredAsync(file.LatestVersion!.Value);
             progress.Report(new SyncPUPullingFile(file.Path));
             if (file.LatestVersion == null) continue;
             
@@ -171,6 +172,19 @@ public class LibraryService(IApiClient api, IRepoWrapper repo) : ILibraryService
 
             string fileSystemPath = Path.Combine(library.Path, file.Path);
             await System.IO.File.WriteAllBytesAsync(fileSystemPath, allBytes.ToArray());
+
+            File fileDb = await repo.FileRepo.QueryAll()
+                .Include(x => x.Versions)
+                .Where(x => x.LibraryId == library.Id)
+                .FirstAsync(x => x.Path == file.Path);
+
+            fileDb.Versions.Add(new Version()
+            {
+                FileChecksum = remoteVersion.FileChecksum,
+                RemoteId = remoteVersion.Id,
+                CreatedUtc = remoteVersion.CreatedUtc,
+                IsDirectoy = remoteVersion.IsDirectory,
+            });
         }
         #endregion
         #region Push
@@ -213,8 +227,21 @@ public class LibraryService(IApiClient api, IRepoWrapper repo) : ILibraryService
             }
             #endregion
             #region Complete version
-            await api.CompleteVersionAsync(newVersion.CreatedVersion.Id);
+            VersionDto completeVersion = await api.CompleteVersionAsync(newVersion.CreatedVersion.Id);
             #endregion
+            
+            File fileDb = await repo.FileRepo.QueryAll()
+                .Include(x => x.Versions)
+                .Where(x => x.LibraryId == library.Id)
+                .FirstAsync(x => x.Path == file.Path);
+
+            fileDb.Versions.Add(new Version()
+            {
+                FileChecksum = completeVersion.FileChecksum,
+                RemoteId = completeVersion.Id,
+                CreatedUtc = completeVersion.CreatedUtc,
+                IsDirectoy = completeVersion.IsDirectory,
+            });
         };
         #endregion
         

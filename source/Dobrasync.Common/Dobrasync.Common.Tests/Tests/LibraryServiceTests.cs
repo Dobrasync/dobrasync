@@ -21,9 +21,11 @@ public class LibraryServiceTests : IClassFixture<EmptyFixture>
     [Fact]
     public async Task CreateAndCloneLibraryTest()
     {
-        string randomLibraryName = Guid.NewGuid().ToString();
+        string randomLibraryName = $"testlib-{Guid.NewGuid().ToString()}";
         LibraryDto created = await libraryService.CreateLibraryAsync(randomLibraryName);
         
         await libraryService.CloneLibraryAsync(created.Id, LibraryDirectory);
+        
+        Assert.NotNull(repo.LibraryRepo.QueryAll().FirstOrDefault(x => x.RemoteId == created.Id));
     }
 }

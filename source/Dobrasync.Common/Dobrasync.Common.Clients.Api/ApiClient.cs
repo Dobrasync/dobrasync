@@ -1788,6 +1788,21 @@ namespace Dobrasync.Common.Clients.Api
     }
 
     [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.1.0.0 (NJsonSchema v11.0.2.0 (Newtonsoft.Json v13.0.0.0))")]
+    public enum EVersionStatus
+    {
+
+        [System.Runtime.Serialization.EnumMember(Value = @"Pending")]
+        Pending = 0,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"Fail")]
+        Fail = 1,
+
+        [System.Runtime.Serialization.EnumMember(Value = @"Success")]
+        Success = 2,
+
+    }
+
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "14.1.0.0 (NJsonSchema v11.0.2.0 (Newtonsoft.Json v13.0.0.0))")]
     public partial class FileDto
     {
         [Newtonsoft.Json.JsonProperty("id", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
@@ -1866,6 +1881,31 @@ namespace Dobrasync.Common.Clients.Api
     {
         [Newtonsoft.Json.JsonProperty("id", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
         public System.Guid Id { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("createdUtc", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public System.DateTimeOffset CreatedUtc { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("status", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        [Newtonsoft.Json.JsonConverter(typeof(Newtonsoft.Json.Converters.StringEnumConverter))]
+        public EVersionStatus Status { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("expectedBlocks", Required = Newtonsoft.Json.Required.Default, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public System.Collections.Generic.ICollection<string> ExpectedBlocks { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("fileCreatedOnUtc", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public System.DateTimeOffset FileCreatedOnUtc { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("fileModifiedOnUtc", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public System.DateTimeOffset FileModifiedOnUtc { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("fileChecksum", Required = Newtonsoft.Json.Required.AllowNull)]
+        public string FileChecksum { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("filePermissionsOctal", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public int FilePermissionsOctal { get; set; }
+
+        [Newtonsoft.Json.JsonProperty("isDirectory", Required = Newtonsoft.Json.Required.DisallowNull, NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore)]
+        public bool IsDirectory { get; set; }
 
     }
 

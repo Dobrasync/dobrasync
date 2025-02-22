@@ -2,8 +2,8 @@ using System.Text.Json.Serialization;
 using Asp.Versioning;
 using Asp.Versioning.Conventions;
 using Dobrasync.Api.Api.Middleware;
+using Dobrasync.Api.BusinessLogic.Services;
 using Dobrasync.Api.Database.DB;
-using Dobrasync.Api.Database.Service;
 using Dobrasync.Api.Shared.Appsettings;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
@@ -75,7 +75,7 @@ builder.Services.AddHttpContextAccessor();
 #endregion
 #region Common Services
 
-ServiceRegister.RegisterServices(builder.Services);
+ServiceRegister.RegisterCommonServices(builder.Services);
 
 #endregion
 #endregion

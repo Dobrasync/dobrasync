@@ -16,7 +16,7 @@ namespace Dobrasync.Api.BusinessLogic.Services;
 
 public static class ServiceRegister
 {
-    public static void RegisterCommonServices(ServiceCollection serviceCollection)
+    public static void RegisterCommonServices(IServiceCollection serviceCollection)
     {
         serviceCollection.AddAutoMapper(cfg =>
         {
@@ -30,6 +30,7 @@ public static class ServiceRegister
         serviceCollection.AddScoped<IAppsettingsProviderService, AppsettingsProviderService>();
         serviceCollection.AddScoped<IInvokerService, InvokerService>();
         serviceCollection.AddScoped<ILoggerService, LoggerService>();
+        
         #endregion
         #region Main
         serviceCollection.AddScoped<ILibraryService, LibraryService>();

@@ -1,6 +1,8 @@
+using Dobrasync.Common.Clients.Database.DB.Entities.Base;
+
 namespace Dobrasync.Common.Clients.Database.DB.Entities;
 
-public class Version
+public class Version : BaseEntity
 {
     public Guid RemoteId { get; set; }
     public DateTimeOffset CreatedUtc { get; set; }
