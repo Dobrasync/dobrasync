@@ -43,4 +43,15 @@ public class VersionController(IVersionService versionService) : BaseController
         
         return Ok(v);
     }
+    
+    [HttpPost("{versionId}/complete")]
+    [SwaggerOperation(
+        OperationId = nameof(CompleteVersionAsync)
+    )]
+    public async Task<ActionResult<VersionDto>> CompleteVersionAsync(Guid versionId)
+    {
+        VersionDto v = await versionService.CompleteMappedAsync(versionId);
+        
+        return Ok(v);
+    }
 }

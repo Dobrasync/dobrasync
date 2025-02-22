@@ -166,7 +166,46 @@ public class LibraryService(IApiClient api, IRepoWrapper repo) : ILibraryService
         }
         #endregion
         #region Push
-        
+        foreach (var file in filesToPush)
+        {
+            #region Gather local file facts
+            string fileSystemPath = Path.Combine(library.Path, file.Path);
+            FileInfo fileInfo = new(fileSystemPath);
+            byte[] fileBytes = await System.IO.File.ReadAllBytesAsync(fileSystemPath);
+            string fileChecksum = ChecksumUtil.CalculateFileChecksum(fileBytes);
+            List<byte[]> allBlocks = Chunker.ContentToBlocks(fileBytes);
+            List<string> allBlocksChecksums = allBlocks.Select(ChecksumUtil.CalculateBlockChecksum).ToList();
+            #endregion
+            #region Create new version
+            VersionCreateResultDto newVersion = await api.CreateVersionAsync(new()
+            {
+                FileChecksum = fileChecksum,
+                LibraryId = library.Id,
+                ExpectedBlocks = allBlocks.Select(x => ChecksumUtil.CalculateFileChecksum(x)).ToList(),
+                FilePath = file.Path,
+                IsDirectory = (fileInfo.Attributes & FileAttributes.Directory) == FileAttributes.Directory,
+                FilePermissionsOctal = 0,
+                FileCreatedOnUtc = fileInfo.CreationTimeUtc,
+                FileModifiedOnUtc = fileInfo.LastWriteTimeUtc,
+            });
+            #endregion
+            #region Send required blocks
+            foreach (string requiredBlock in newVersion.RequiredBlocks)
+            {
+                int blockMatchIndex = allBlocksChecksums.IndexOf(requiredBlock);
+                byte[] blockMatchPayload = allBlocks[blockMatchIndex];
+                
+                await api.CreateBlockAsync(library.RemoteId, new()
+                {
+                    Payload = blockMatchPayload,
+                    Checksum = requiredBlock,
+                });
+            }
+            #endregion
+            #region Complete version
+            await api.CompleteVersionAsync(newVersion.CreatedVersion.Id);
+            #endregion
+        };
         #endregion
     }
 
