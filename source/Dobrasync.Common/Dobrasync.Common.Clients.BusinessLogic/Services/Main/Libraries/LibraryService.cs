@@ -5,9 +5,16 @@ using System.Linq;
 using System.Threading.Tasks;
 using Dobrasync.Common.Clients.Api;
 using Dobrasync.Common.Clients.BusinessLogic.CObj;
+using Dobrasync.Common.Clients.BusinessLogic.CObj.Progress.LibCreate;
 using Dobrasync.Common.Clients.BusinessLogic.CObj.Progress.LibDelete;
+using Dobrasync.Common.Clients.BusinessLogic.Services.ActionResults;
+using Dobrasync.Common.Clients.BusinessLogic.Services.ProgressReport.LibraryClone;
+using Dobrasync.Common.Clients.BusinessLogic.Services.ProgressReport.LibraryCreate;
+using Dobrasync.Common.Clients.BusinessLogic.Services.ProgressReport.LibraryDelete;
+using Dobrasync.Common.Clients.BusinessLogic.Services.ProgressReport.LibraryUnclone;
 using Dobrasync.Common.Clients.Database.DB.Entities;
 using Dobrasync.Common.Clients.Database.Repos;
+using Dobrasync.Common.Clients.Shared.Exceptions;
 using Dobrasync.Common.Util;
 using Isopoh.Cryptography.Argon2;
 using Microsoft.EntityFrameworkCore;
@@ -18,28 +25,39 @@ namespace Dobrasync.Common.Clients.BusinessLogic.Services.Main.Libraries;
 
 public class LibraryService(IApiClient api, IRepoWrapper repo) : ILibraryService
 {
-    public async Task CloneLibraryAsync(Guid remoteId, string path)
+    public async Task<LibraryCloneSAR> CloneLibraryAsync(Guid remoteId, string path, IProgress<LibraryClonePR> progress, CancellationToken cancellationToken)
     {
         if (repo.LibraryRepo.QueryAll().Any(x => x.RemoteId == remoteId))
         {
-            return;
+            return new()
+            {
+                
+            };
         }
         
         LibraryDto remoteLibrary = await api.GetLibraryByIdAsync(remoteId);
-        Library created = await CreateLibraryLocal(remoteLibrary.Id, Path.Join(path, remoteLibrary.Name));
+        LibCreateResult created = await CreateLibraryLocal(remoteLibrary.Id, Path.Join(path, remoteLibrary.Name));
+
+        return new()
+        {
+
+        };
     }
 
-    public async Task<LibraryDto> CreateLibraryAsync(string name)
+    public async Task<LibraryCreateSAR> CreateLibraryAsync(string name, IProgress<LibraryCreatePR> progress, CancellationToken cancellationToken)
     {
         LibraryDto created = await api.CreateLibraryAsync(new()
         {
             Name = name,
         });
         
-        return created;
+        return new()
+        {
+            
+        };
     }
 
-    public async Task<SyncResult> SyncLibraryAsync(Guid libraryId, IProgress<SyncProgressUpdateBase> progress, CancellationToken cancellationToken)
+    public async Task<LibrarySyncSAR> SyncLibraryAsync(Guid libraryId, IProgress<LibrarySyncPR> progress, CancellationToken cancellationToken)
     {
         #region Load library
         Library? library = await repo.LibraryRepo
@@ -48,19 +66,19 @@ public class LibraryService(IApiClient api, IRepoWrapper repo) : ILibraryService
 
         if (library == null)
         {
-            progress.Report(new SyncPUFatalLibraryNotFound());
+            progress.Report(new LibrarySyncPRFatalLibraryNotFound());
             return new()
             {
-                Fatal = true
+                
             };
         }
         #endregion
         #region Build file tree
-        progress.Report(new SyncPUBuildingFileTree());
+        progress.Report(new LibrarySyncPRBuildingFileTree());
         FileTreeBuildResult tree = await CreateAndUpdateLocalLibraryFileTree(library.Id);
         #endregion
         #region Get diff
-        progress.Report(new SyncPUFetchingDiff());
+        progress.Report(new LibrarySyncPRFetchingDiff());
 
         List<DiffFileDescriptionDto> fileDescs = new();
         foreach (var file in tree.FilesAll)
@@ -86,7 +104,7 @@ public class LibraryService(IApiClient api, IRepoWrapper repo) : ILibraryService
         #endregion
         
         #region Build Pull/Push list
-        progress.Report(new SyncPUBuildingPushPullLists());
+        progress.Report(new LibrarySyncPRBuildingPushPullLists());
         HashSet<FileWithVersionInfo> filesToPush = new();
         HashSet<FileWithVersionInfo> filesToPull = new();
         HashSet<FileWithVersionInfo> filesUndecided = new();
@@ -178,7 +196,7 @@ public class LibraryService(IApiClient api, IRepoWrapper repo) : ILibraryService
         foreach (var file in filesToPull)
         {
             VersionDto remoteVersion = await api.GetVersionRequiredAsync(file.LatestVersion!.Value);
-            progress.Report(new SyncPUPullingFile(file.Path));
+            progress.Report(new LibrarySyncPRPullingFile(file.Path));
             if (file.LatestVersion == null) continue;
             
             ICollection<string> blocks = await api.GetVersionBlocksAsync(file.LatestVersion.Value);
@@ -211,7 +229,7 @@ public class LibraryService(IApiClient api, IRepoWrapper repo) : ILibraryService
         #region Push
         foreach (var file in filesToPush)
         {
-            progress.Report(new SyncPUPushingFile(file.Path));
+            progress.Report(new LibrarySyncPRPushingFile(file.Path));
             
             #region Gather local file facts
             string fileSystemPath = Path.Combine(library.Path, file.Path);
@@ -268,13 +286,13 @@ public class LibraryService(IApiClient api, IRepoWrapper repo) : ILibraryService
         };
         #endregion
         
-        progress.Report(new SyncPUComplete());
+        progress.Report(new LibrarySyncPRComplete());
         return new()
         {
-            UndecidedFiles = filesUndecided.Select(x => x.Path).ToHashSet(),
-            FailedFiles = actuallyFilesFailed,
-            PulledFiles = actuallyFilesPulled,
-            PushedFiles = actuallyFilesPushed,
+            //UndecidedFiles = filesUndecided.Select(x => x.Path).ToHashSet(),
+            //FailedFiles = actuallyFilesFailed,
+            //PulledFiles = actuallyFilesPulled,
+            //PushedFiles = actuallyFilesPushed,
         };
     }
 
@@ -358,7 +376,7 @@ public class LibraryService(IApiClient api, IRepoWrapper repo) : ILibraryService
         };
     }
 
-    private async Task<Library> CreateLibraryLocal(Guid remoteId, string path)
+    private async Task<LibCreateResult> CreateLibraryLocal(Guid remoteId, string path)
     {
         Library newLibrary = new()
         {
@@ -369,10 +387,13 @@ public class LibraryService(IApiClient api, IRepoWrapper repo) : ILibraryService
         await repo.LibraryRepo.InsertAsync(newLibrary);
         Directory.CreateDirectory(path);
 
-        return newLibrary;
+        return new()
+        {
+            
+        };
     }
 
-    public async Task<DeleteLibraryResult> DeleteLibraryAsync(Guid remoteId, IProgress<LibDeletePRBase> progress, CancellationToken cancellationToken)
+    public async Task<LibraryDeleteSAR> DeleteLibraryAsync(Guid remoteId, IProgress<LibraryDeletePR> progress, CancellationToken cancellationToken)
     {
         #region load
         await api.DeleteLibraryByIdAsync(remoteId);
@@ -380,7 +401,25 @@ public class LibraryService(IApiClient api, IRepoWrapper repo) : ILibraryService
 
         return new()
         {
-            Deleted = true
+            //Deleted = true
+        };
+    }
+
+    public async Task<LibraryUncloneSAR> UncloneLibraryAsync(Guid localLibraryId, IProgress<LibraryUnclonePR> progress,
+        CancellationToken cancellationToken)
+    {
+        Library? lib = await repo.LibraryRepo
+            .QueryAll()
+            .FirstOrDefaultAsync(x => x.Id == localLibraryId);
+
+        if (lib == null)
+        {
+            throw new NotFoundUSException();
+        }
+        
+        return new()
+        {
+
         };
     }
 }

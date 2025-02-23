@@ -2,10 +2,10 @@ using Dobrasync.Common.Clients.BusinessLogic.CObj.Etc;
 
 namespace Dobrasync.Common.Clients.BusinessLogic.CObj;
 
-public class SyncPUFetchingDiff : SyncProgressUpdateBase
+public class LibrarySyncPRComplete : LibrarySyncPR
 {
     
-    public SyncPUFetchingDiff() : base("Fetching diff from remote.", false)
+    public LibrarySyncPRComplete() : base($"Sync complete.", false)
     {
         
     }

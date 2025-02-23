@@ -25,7 +25,7 @@ public class LibraryServiceTests : IClassFixture<EmptyFixture>
     public async Task CreateAndCloneLibraryTest()
     {
         string randomLibraryName = $"testlib-{Guid.NewGuid().ToString()}";
-        LibraryDto created = await libraryService.CreateLibraryAsync(randomLibraryName);
+        var created = await libraryService.CreateLibraryAsync(randomLibraryName);
         
         await libraryService.CloneLibraryAsync(created.Id, LibraryDirectory);
         
@@ -42,7 +42,7 @@ public class LibraryServiceTests : IClassFixture<EmptyFixture>
         
         await libraryService.CloneLibraryAsync(created.Id, LibraryDirectory);
         
-        IProgress<SyncProgressUpdateBase> progress = new Progress<SyncProgressUpdateBase>();
+        IProgress<LibrarySyncPR> progress = new Progress<LibrarySyncPR>();
         CancellationTokenSource cts = new CancellationTokenSource();
         CancellationToken token = cts.Token;
 
@@ -63,7 +63,7 @@ public class LibraryServiceTests : IClassFixture<EmptyFixture>
         
         await libraryService.CloneLibraryAsync(created.Id, LibraryDirectory);
         
-        IProgress<SyncProgressUpdateBase> progress = new Progress<SyncProgressUpdateBase>();
+        IProgress<LibrarySyncPR> progress = new Progress<LibrarySyncPR>();
         CancellationTokenSource cts = new CancellationTokenSource();
         CancellationToken token = cts.Token;
 

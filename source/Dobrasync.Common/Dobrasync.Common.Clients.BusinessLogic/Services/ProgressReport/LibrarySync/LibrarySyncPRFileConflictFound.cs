@@ -2,11 +2,11 @@ using Dobrasync.Common.Clients.BusinessLogic.CObj.Etc;
 
 namespace Dobrasync.Common.Clients.BusinessLogic.CObj;
 
-public class SyncPUFileConflictFound : SyncProgressUpdateBase
+public class LibrarySyncPRFileConflictFound : LibrarySyncPR
 {
     public FileConflictDescription FileConflictDescription { get; set; }
     
-    public SyncPUFileConflictFound(FileConflictDescription desc) : base("A file conflict was found.", false)
+    public LibrarySyncPRFileConflictFound(FileConflictDescription desc) : base("A file conflict was found.", false)
     {
         FileConflictDescription = desc;
     }
