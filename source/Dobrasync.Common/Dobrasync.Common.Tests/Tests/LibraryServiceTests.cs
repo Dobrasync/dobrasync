@@ -1,6 +1,8 @@
 using Dobrasync.Common.Clients.Api;
 using Dobrasync.Common.Clients.BusinessLogic.CObj;
 using Dobrasync.Common.Clients.BusinessLogic.Services.Main.Libraries;
+using Dobrasync.Common.Clients.BusinessLogic.Services.ProgressReport.LibraryClone;
+using Dobrasync.Common.Clients.BusinessLogic.Services.ProgressReport.LibraryCreate;
 using Dobrasync.Common.Clients.Database.DB.Entities;
 using Dobrasync.Common.Clients.Database.Repos;
 using Dobrasync.Common.Tests.Fixtures;
@@ -25,11 +27,11 @@ public class LibraryServiceTests : IClassFixture<EmptyFixture>
     public async Task CreateAndCloneLibraryTest()
     {
         string randomLibraryName = $"testlib-{Guid.NewGuid().ToString()}";
-        var created = await libraryService.CreateLibraryAsync(randomLibraryName);
+        var created = await libraryService.CreateLibraryAsync(randomLibraryName, new Progress<LibraryCreatePR>(), CancellationToken.None);
         
-        await libraryService.CloneLibraryAsync(created.Id, LibraryDirectory);
+        await libraryService.CloneLibraryAsync(created.CreatedLibrary.Id, LibraryDirectory, new Progress<LibraryClonePR>(), CancellationToken.None);
         
-        Assert.NotNull(repo.LibraryRepo.QueryAll().FirstOrDefault(x => x.RemoteId == created.Id));
+        Assert.NotNull(repo.LibraryRepo.QueryAll().FirstOrDefault(x => x.RemoteId == created.CreatedLibrary.Id));
         FileInfo directory = new FileInfo(Path.Join(LibraryDirectory, randomLibraryName));
         Assert.True(directory.Directory!.Exists);
     }
@@ -38,16 +40,16 @@ public class LibraryServiceTests : IClassFixture<EmptyFixture>
     public async Task CreateClonePushPullEmptyLibraryTest()
     {
         string randomLibraryName = $"testlib-{Guid.NewGuid().ToString()}";
-        LibraryDto created = await libraryService.CreateLibraryAsync(randomLibraryName);
+        var created = await libraryService.CreateLibraryAsync(randomLibraryName, new Progress<LibraryCreatePR>(), CancellationToken.None);
         
-        await libraryService.CloneLibraryAsync(created.Id, LibraryDirectory);
+        await libraryService.CloneLibraryAsync(created.CreatedLibrary.Id, LibraryDirectory, new Progress<LibraryClonePR>(), CancellationToken.None);
         
         IProgress<LibrarySyncPR> progress = new Progress<LibrarySyncPR>();
         CancellationTokenSource cts = new CancellationTokenSource();
         CancellationToken token = cts.Token;
 
-        Library lib = repo.LibraryRepo.QueryAll().First(x => x.RemoteId == created.Id);
-        SyncResult result = await libraryService.SyncLibraryAsync(progress, token, lib.Id);
+        Library lib = repo.LibraryRepo.QueryAll().First(x => x.RemoteId == created.CreatedLibrary.Id);
+        var result = await libraryService.SyncLibraryAsync(lib.Id, progress, token);
         
         Assert.Empty(result.PushedFiles);
         Assert.Empty(result.FailedFiles);
@@ -59,15 +61,15 @@ public class LibraryServiceTests : IClassFixture<EmptyFixture>
     public async Task CreateClonePushPullWithContentLibraryTest()
     {
         string randomLibraryName = $"testlib-{Guid.NewGuid().ToString()}";
-        LibraryDto created = await libraryService.CreateLibraryAsync(randomLibraryName);
+        var created = await libraryService.CreateLibraryAsync(randomLibraryName, new Progress<LibraryCreatePR>(), CancellationToken.None);
         
-        await libraryService.CloneLibraryAsync(created.Id, LibraryDirectory);
+        await libraryService.CloneLibraryAsync(created.CreatedLibrary.Id, LibraryDirectory, new Progress<LibraryClonePR>(), CancellationToken.None);
         
         IProgress<LibrarySyncPR> progress = new Progress<LibrarySyncPR>();
         CancellationTokenSource cts = new CancellationTokenSource();
         CancellationToken token = cts.Token;
 
-        Library lib = repo.LibraryRepo.QueryAll().First(x => x.RemoteId == created.Id);
+        Library lib = repo.LibraryRepo.QueryAll().First(x => x.RemoteId == created.CreatedLibrary.Id);
         
         #region add content to library dir
         string smallFilePath = "SmallFile.txt";
@@ -75,7 +77,7 @@ public class LibraryServiceTests : IClassFixture<EmptyFixture>
         await System.IO.File.WriteAllBytesAsync(Path.Join(lib.Path, bigFilePath), File.ReadAllBytes(TestData.TestDataLargeTestfilePath));
         await System.IO.File.WriteAllBytesAsync(Path.Join(lib.Path, smallFilePath), File.ReadAllBytes(TestData.TestDataTestfilePath));
         
-        SyncResult result = await libraryService.SyncLibraryAsync(progress, token, lib.Id);
+        var result = await libraryService.SyncLibraryAsync(lib.Id, progress, token);
         Assert.NotEmpty(result.PushedFiles);
         Assert.Equal(2, result.PushedFiles.Count);
         Assert.Empty(result.FailedFiles);

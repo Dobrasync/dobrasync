@@ -53,7 +53,7 @@ public class LibraryService(IApiClient api, IRepoWrapper repo) : ILibraryService
         
         return new()
         {
-            
+            CreatedLibrary = created,
         };
     }
 
