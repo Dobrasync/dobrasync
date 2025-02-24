@@ -1,4 +1,5 @@
 using Dobrasync.Common.Clients.Database.DB.Entities;
+using Dobrasync.Common.Clients.Database.DB.Entities.Base;
 using Microsoft.EntityFrameworkCore;
 using File = Dobrasync.Common.Clients.Database.DB.Entities.File;
 using Version = Dobrasync.Common.Clients.Database.DB.Entities.Version;
@@ -18,6 +19,18 @@ public class DobrasyncContext(DbContextOptions<DobrasyncContext> options) : DbCo
         builder.Entity<Setting>()
             .HasIndex(e => e.Key)
             .IsUnique();
+        
+        builder.Entity<Library>()
+            .HasMany(l => l.Files)
+            .WithOne(b => b.Library)
+            .HasForeignKey(b => b.LibraryId)
+            .OnDelete(DeleteBehavior.Cascade); 
+        
+        builder.Entity<File>()
+            .HasMany(l => l.Versions)
+            .WithOne(b => b.File)
+            .HasForeignKey(b => b.FileId)
+            .OnDelete(DeleteBehavior.Cascade); 
         #endregion
         #region Seed
         //Seeder.SeedUniversal(builder);

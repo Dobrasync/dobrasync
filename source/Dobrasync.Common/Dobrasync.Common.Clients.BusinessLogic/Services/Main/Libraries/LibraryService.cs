@@ -410,15 +410,29 @@ public class LibraryService(IApiClient api, IRepoWrapper repo) : ILibraryService
     public async Task<LibraryUncloneSAR> UncloneLibraryAsync(Guid localLibraryId, IProgress<LibraryUnclonePR> progress,
         CancellationToken cancellationToken)
     {
+        #region Load db entry
         Library? lib = await repo.LibraryRepo
             .QueryAll()
+            .Include(x => x.Files)
+            .ThenInclude(x => x.Versions)
             .FirstOrDefaultAsync(x => x.Id == localLibraryId);
 
         if (lib == null)
         {
             throw new NotFoundUSException();
         }
+        #endregion
+        #region remove library from database
+        progress.Report(new LibraryUnclonePRRemovingDatabaseEntry());
         
+        await repo.LibraryRepo.DeleteAsync(lib);
+        #endregion
+        #region remove files from file system
+        progress.Report(new LibraryUnclonePRRemovingFiles());
+        Directory.Delete(lib.Path, true);
+        #endregion
+        
+        progress.Report(new LibraryUnclonePRComplete());
         return new()
         {
 

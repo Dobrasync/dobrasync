@@ -74,6 +74,8 @@ public class Repo<TEntity> : IRepo<TEntity> where TEntity : class
 
     public async Task<TEntity> DeleteAsync(TEntity entityToDelete)
     {
+        var x = _dbSet.Entry(entityToDelete);
+        
         _dbSet.Remove(entityToDelete);
         await _context.SaveChangesAsync();
 

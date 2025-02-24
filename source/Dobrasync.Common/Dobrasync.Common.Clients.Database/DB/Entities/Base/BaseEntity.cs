@@ -6,7 +6,7 @@ namespace Dobrasync.Common.Clients.Database.DB.Entities.Base;
 
 public abstract class BaseEntity
 {
-    [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     [Key]
-    public Guid Id { get; set; } = Guid.NewGuid();
+    [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+    public Guid Id { get; set; }
 }

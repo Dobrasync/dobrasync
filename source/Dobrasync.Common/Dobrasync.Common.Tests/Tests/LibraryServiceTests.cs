@@ -3,9 +3,11 @@ using Dobrasync.Common.Clients.BusinessLogic.CObj;
 using Dobrasync.Common.Clients.BusinessLogic.Services.Main.Libraries;
 using Dobrasync.Common.Clients.BusinessLogic.Services.ProgressReport.LibraryClone;
 using Dobrasync.Common.Clients.BusinessLogic.Services.ProgressReport.LibraryCreate;
+using Dobrasync.Common.Clients.BusinessLogic.Services.ProgressReport.LibraryUnclone;
 using Dobrasync.Common.Clients.Database.DB.Entities;
 using Dobrasync.Common.Clients.Database.Repos;
 using Dobrasync.Common.Tests.Fixtures;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using File = System.IO.File;
 
@@ -95,14 +97,35 @@ public class LibraryServiceTests : IClassFixture<EmptyFixture>
         #endregion
         
         #region change file
-        var result3 = await libraryService.SyncLibraryAsync(lib.Id, progress, token);
-        
         await System.IO.File.WriteAllBytesAsync(Path.Join(lib.Path, bigFilePath), File.ReadAllBytes(TestData.TestDataMediumTestfilePath));
+        var result3 = await libraryService.SyncLibraryAsync(lib.Id, progress, token);
         
         Assert.Single(result3.PushedFiles);
         Assert.Empty(result3.FailedFiles);
         Assert.Empty(result3.PulledFiles);
         Assert.Empty(result3.UndecidedFiles);
+        #endregion
+        
+        #region Unclone library
+        var uncloneResult = await libraryService.UncloneLibraryAsync(lib.Id, new Progress<LibraryUnclonePR>(), CancellationToken.None);
+        Assert.False(Directory.Exists(lib.Path));
+        Assert.Equal(0, repo.LibraryRepo.QueryAll().Count(x => x.RemoteId == lib.RemoteId));
+        #endregion
+        
+        #region clone again
+
+        var recloneResult =
+            await libraryService.CloneLibraryAsync(lib.RemoteId, LibraryDirectory, new Progress<LibraryClonePR>(),
+                CancellationToken.None);
+
+        #endregion
+        #region sync / pull from remote
+        var resyncResult = await libraryService.SyncLibraryAsync(lib.Id, new Progress<LibrarySyncPR>(), CancellationToken.None);
+        
+        Assert.Empty(resyncResult.PushedFiles);
+        Assert.Empty(resyncResult.FailedFiles);
+        Assert.Empty(resyncResult.UndecidedFiles);
+        Assert.Equal(2, resyncResult.PulledFiles.Count);
         #endregion
     }
 }

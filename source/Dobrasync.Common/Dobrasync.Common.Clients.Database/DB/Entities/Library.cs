@@ -6,4 +6,5 @@ public class Library : BaseEntity
 {
     public Guid RemoteId { get; set; }
     public required string Path { get; set; }
+    public HashSet<File> Files { get; set; }
 }
