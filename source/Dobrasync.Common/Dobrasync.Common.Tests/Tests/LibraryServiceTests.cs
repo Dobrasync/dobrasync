@@ -78,11 +78,31 @@ public class LibraryServiceTests : IClassFixture<EmptyFixture>
         await System.IO.File.WriteAllBytesAsync(Path.Join(lib.Path, smallFilePath), File.ReadAllBytes(TestData.TestDataTestfilePath));
         
         var result = await libraryService.SyncLibraryAsync(lib.Id, progress, token);
+        
         Assert.NotEmpty(result.PushedFiles);
         Assert.Equal(2, result.PushedFiles.Count);
         Assert.Empty(result.FailedFiles);
         Assert.Empty(result.PulledFiles);
         Assert.Empty(result.UndecidedFiles);
+        #endregion
+        
+        #region itermediate sync
+        var result2 = await libraryService.SyncLibraryAsync(lib.Id, progress, token);
+        Assert.Empty(result2.FailedFiles);
+        Assert.Empty(result2.PulledFiles);
+        Assert.Empty(result2.PushedFiles);
+        Assert.Empty(result2.UndecidedFiles);
+        #endregion
+        
+        #region change file
+        var result3 = await libraryService.SyncLibraryAsync(lib.Id, progress, token);
+        
+        await System.IO.File.WriteAllBytesAsync(Path.Join(lib.Path, bigFilePath), File.ReadAllBytes(TestData.TestDataMediumTestfilePath));
+        
+        Assert.Single(result3.PushedFiles);
+        Assert.Empty(result3.FailedFiles);
+        Assert.Empty(result3.PulledFiles);
+        Assert.Empty(result3.UndecidedFiles);
         #endregion
     }
 }

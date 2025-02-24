@@ -289,10 +289,10 @@ public class LibraryService(IApiClient api, IRepoWrapper repo) : ILibraryService
         progress.Report(new LibrarySyncPRComplete());
         return new()
         {
-            //UndecidedFiles = filesUndecided.Select(x => x.Path).ToHashSet(),
-            //FailedFiles = actuallyFilesFailed,
-            //PulledFiles = actuallyFilesPulled,
-            //PushedFiles = actuallyFilesPushed,
+            UndecidedFiles = filesUndecided.Select(x => x.Path).ToHashSet(),
+            FailedFiles = actuallyFilesFailed,
+            PulledFiles = actuallyFilesPulled,
+            PushedFiles = actuallyFilesPushed,
         };
     }
 

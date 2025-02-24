@@ -19,11 +19,11 @@ public class DobrasyncContext(DbContextOptions<DobrasyncContext> options) : DbCo
     {
         #region Model
         builder.Entity<File>()
-            .HasIndex(e => e.Path)
+            .HasIndex(e => new { e.LibraryId, e.Path })
             .IsUnique();
 
         builder.Entity<Block>()
-            .HasIndex(e => e.Checksum)
+            .HasIndex(e => new { e.LibraryId, e.Checksum})
             .IsUnique();
         
         builder.Entity<Library>()

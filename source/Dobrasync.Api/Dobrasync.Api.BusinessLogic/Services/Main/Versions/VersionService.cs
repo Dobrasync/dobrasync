@@ -46,10 +46,12 @@ public class VersionService(IRepoWrapper repo, IBlockService blockService, IMapp
         }
         #endregion
         #region Load or create file this version belongs to
+        List<File> files = await repo.FileRepo.QueryAll().Include(x => x.Library).ToListAsync();
+        
         File? targetFile = await repo.FileRepo
             .QueryAll()
             .Include(x => x.Library)
-            .Where(x => x.Library.Id == createDto.LibraryId)
+            .Where(x => x.LibraryId == createDto.LibraryId)
             .FirstOrDefaultAsync(x => x.Path == createDto.FilePath);
         
         bool initialVersion = targetFile == null;
