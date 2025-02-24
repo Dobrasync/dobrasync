@@ -354,7 +354,7 @@ public class LibraryService(IApiClient api, IRepoWrapper repo) : ILibraryService
                 continue;
             }
             
-            byte[] fileBytesLocal = await System.IO.File.ReadAllBytesAsync(filePathInLibrary);
+            byte[] fileBytesLocal = await System.IO.File.ReadAllBytesAsync(fileInfo.FullName);
             string currentLocalFilesChecksum = ChecksumUtil.CalculateFileChecksum(fileBytesLocal);
             if (trackedFile.Versions?.OrderByDescending(x => x.CreatedUtc).ToHashSet().First().FileChecksum !=
                 currentLocalFilesChecksum)
@@ -362,6 +362,8 @@ public class LibraryService(IApiClient api, IRepoWrapper repo) : ILibraryService
                 changedFiles.Add(trackedFile);
                 continue;
             }
+            
+            untouchedFiles.Add(trackedFile);
         }
         
         List<File> allScannedFiles = newFiles.Concat(untouchedFiles).Concat(changedFiles).ToList();
