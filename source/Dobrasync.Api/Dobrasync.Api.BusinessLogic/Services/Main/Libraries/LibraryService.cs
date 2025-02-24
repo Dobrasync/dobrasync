@@ -170,7 +170,9 @@ public class LibraryService(IRepoWrapper repo, IMapper mapper, IAccessControlSer
             }
          
             DiffFileDescriptionDto? fileOnLocal = diffCreateDto.FilesOnLocal.FirstOrDefault(x => x.Path == path);
-            Version? latestVersionOnRemote = repo.VersionRepo.QueryAll()
+            Version? latestVersionOnRemote = repo.VersionRepo
+                .QueryAll()
+                .Where(x => x.FileId == fileOnRemote.Id)
                 .OrderByDescending(x => x.CreatedUtc)
                 .FirstOrDefault();
 
